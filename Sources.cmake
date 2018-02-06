@@ -1,4 +1,0 @@
-set(SOURCES
-    util.cpp
-)
-

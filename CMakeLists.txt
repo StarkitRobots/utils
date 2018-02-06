@@ -1,21 +1,22 @@
 cmake_minimum_required(VERSION 2.8)
-project(RhobanUtils)
+project(rhoban_utils)
 
 find_package(catkin REQUIRED COMPONENTS
-  jsoncpp Eigen
-  )
-
-find_package(model)
-
-catkin_package(
-  INCLUDE_DIRS .
-  LIBRARIES RhobanUtils
-  CATKIN_DEPENDS jsoncpp
+  jsoncpp
+  eigen
 )
 
-option (RHOBANUTILS_BUILD_APPS "Build Rhoban utils apps" OFF)
+find_package(Threads REQUIRED)
 
-include_directories(. ${catkin_INCLUDE_DIRS})
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES rhoban_utils
+  CATKIN_DEPENDS jsoncpp eigen
+)
+
+include_directories(include ${catkin_INCLUDE_DIRS})
+
+option(RHOBAN_UTILS_BUILD_EXAMPLES "Building examples" OFF)
 
 #Enable C++11
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
@@ -25,19 +26,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 #List Sources sub source directories
 set(SOURCES_DIRECTORIES
-  .
-  timing
-  geometry
-  spline
-  sockets
-  logging
-  history
-  threading
-  trajectory
-  astar
-  graph
-  nominal
-  random
+  src/rhoban_utils
+  src/rhoban_utils/control
+  src/rhoban_utils/history
+  src/rhoban_utils/logging
+  src/rhoban_utils/nominal
+  src/rhoban_utils/serialization
+  src/rhoban_utils/sockets
+  src/rhoban_utils/spline
+  src/rhoban_utils/threading
+  src/rhoban_utils/timing
 )
 
 if (model_FOUND)
@@ -60,16 +58,13 @@ foreach (DIRECTORY ${SOURCES_DIRECTORIES})
     set (ALL_SOURCES ${ALL_SOURCES} ${PREFIXED_SOURCES})
 endforeach (DIRECTORY)
 
-add_library (RhobanUtils ${ALL_SOURCES})
-target_link_libraries(RhobanUtils ${catkin_LIBRARIES})
-if (model_FOUND)
-    target_link_libraries(RhobanUtils ${model_LIBRARIES})
-endif ()
 
-if (RHOBANUTILS_BUILD_APPS)
-    add_executable (astarTest astar/main.cpp)
-    target_link_libraries (astarTest RhobanUtils)
+add_library (rhoban_utils ${ALL_SOURCES})
+target_link_libraries(rhoban_utils ${catkin_LIBRARIES} Threads::Threads)
 
-    add_executable (graphTest graph/main.cpp)
-    target_link_libraries (graphTest RhobanUtils)
-endif ()
+if (RHOBAN_UTILS_BUILD_EXAMPLES)
+  add_executable(json_serialization_example examples/json_serialization.cpp)
+  target_link_libraries(json_serialization_example rhoban_utils ${catkin_LIBRARIES} Threads::Threads)
+  add_executable(json_factory_example examples/json_factory.cpp)
+  target_link_libraries(json_factory_example rhoban_utils ${catkin_LIBRARIES} Threads::Threads)
+endif()
