@@ -186,7 +186,7 @@ Json::Value vector2Json(const Eigen::VectorXd & vec)
   Json::Value v;
   v["rows"] = (int)vec.rows();
   for (int row = 0; row < vec.rows(); row++) {
-    v["data"].append(vec(row));
+    v["values"].append(vec(row));
   }
   return v;        
 }
@@ -218,6 +218,22 @@ template <> Eigen::Vector2d getJsonVal<Eigen::Vector2d>(const Json::Value & v)
   }
   Eigen::Vector2d vec;
   for (Json::ArrayIndex row = 0; row < 2; row++) {
+    vec(row) = getJsonVal<double>(v[row]);
+  }
+  return vec;
+}
+
+template <> Eigen::Vector3d getJsonVal<Eigen::Vector3d>(const Json::Value & v)
+{
+  if (!v.isArray()) {
+    throw JsonParsingError("getJsonVal<Eigen::Vector3d>: Expecting an array");
+  }
+  if (v.size() != 3) {
+    throw JsonParsingError("getJsonVal<Eigen::Vector3d>: Expecting 3 values, received: "
+                           + std::to_string(v.size()));
+  }
+  Eigen::Vector3d vec;
+  for (Json::ArrayIndex row = 0; row < 3; row++) {
     vec(row) = getJsonVal<double>(v[row]);
   }
   return vec;

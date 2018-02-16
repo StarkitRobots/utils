@@ -146,7 +146,9 @@ static Json::Value vector2Json(const std::vector<T> & values)
 Json::Value vector2Json(const Eigen::VectorXd & v);
 Json::Value matrix2Json(const Eigen::MatrixXd & m);
 
+//TODO: a solution has to be found for fixed size vectors!
 template <> Eigen::Vector2d getJsonVal<Eigen::Vector2d>(const Json::Value & v);
+template <> Eigen::Vector3d getJsonVal<Eigen::Vector3d>(const Json::Value & v);
 template <> Eigen::VectorXd getJsonVal<Eigen::VectorXd>(const Json::Value & v);
 template <> Eigen::MatrixXd getJsonVal<Eigen::MatrixXd>(const Json::Value & v);
 
