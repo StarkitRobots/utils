@@ -19,6 +19,11 @@ TimeStamp TimeStamp::fromMS(unsigned long msSinceEpoch)
         milliseconds(msSinceEpoch)));
 }
 
+double TimeStamp::getTimeSec() const
+{
+  return getTimeMS() / 1000;
+}
+
 double TimeStamp::getTimeMS() const
 {
     return duration_cast<std::chrono::duration<double, std::milli>>(

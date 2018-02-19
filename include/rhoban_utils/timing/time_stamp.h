@@ -14,6 +14,7 @@ class TimeStamp : public std::chrono::time_point<std::chrono::steady_clock>
 
         static TimeStamp fromMS(unsigned long msSinceEpoch);
 
+        double getTimeSec() const;
         double getTimeMS() const;
 
 };
