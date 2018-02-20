@@ -1,5 +1,4 @@
-#ifndef _RHOBAN_LOGGER_H
-#define _RHOBAN_LOGGER_H
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -24,7 +23,7 @@ namespace rhoban_utils
             void resetColor();
             void prefix();
     
-            static void getTime(uint8_t &hour, uint8_t &min, uint8_t &sec);
+            static void getTime(uint8_t &hour, uint8_t &min, uint8_t &sec, uint16_t & ms);
 
             void error(const char *fmt, ...);
             void warning(const char *fmt, ...);
@@ -39,5 +38,3 @@ namespace rhoban_utils
             LoggerLevel level;
     };
 }
-
-#endif

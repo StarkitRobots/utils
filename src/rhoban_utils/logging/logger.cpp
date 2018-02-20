@@ -1,7 +1,9 @@
 #include <cstdio>
 #include <cstdarg>
+#include <cmath>
 #ifndef WIN32
 #include <unistd.h>
+#include <sys/time.h>
 #endif
 
 #include "rhoban_utils/logging/logger.h"
@@ -25,17 +27,25 @@ namespace rhoban_utils
 #endif
     }
 
-    void Logger::getTime(uint8_t &hour, uint8_t &min, uint8_t &sec)
+    void Logger::getTime(uint8_t &hour, uint8_t &min, uint8_t &sec, uint16_t & ms)
     {
 #ifndef WIN32
-        struct tm now;
-        time_t timestamp;
-        time(&timestamp);
-        now = *localtime(&timestamp);
+        struct timeval tv;
+        
+        gettimeofday(&tv, NULL);
+        
+        ms = std::lrint(tv.tv_usec/1000.0); // Round to nearest millisec
+        if (ms>=1000) { // Allow for rounding up to nearest second
+          ms -=1000;
+          tv.tv_sec++;
+        }
+        
+        struct tm tm_info;
+        localtime_r(&tv.tv_sec, &tm_info);
 
-        hour = now.tm_hour;
-        min = now.tm_min;
-        sec = now.tm_sec;
+        hour = tm_info.tm_hour;
+        min = tm_info.tm_min;
+        sec = tm_info.tm_sec;
 #endif
     }
 
@@ -43,8 +53,9 @@ namespace rhoban_utils
     {
 #ifndef WIN32
         uint8_t hour, min, sec;
-        getTime(hour, min, sec);
-        fprintf(stderr, "[%02d:%02d:%02d] ", hour, min, sec);
+        uint16_t ms;
+        getTime(hour, min, sec, ms);
+        fprintf(stderr, "[%02d:%02d:%02d:%03d] ", hour, min, sec, ms);
 #endif
         fprintf(stderr, "[%s] ", module.c_str());
     }
