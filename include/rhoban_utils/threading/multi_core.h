@@ -28,6 +28,11 @@ public:
                               int nb_tasks,
                               int nb_threads);
 
+  static void runParallelStochasticTask(StochasticTask t,
+                                        int nb_tasks,
+                                        int nb_threads,
+                                        std::default_random_engine * engine);
+
   /// Can be used when a function 'f' needs to be run for all values in [0,nb_tasks[
   /// It should be safe to run the function from multiple thread at the same time
   /// Since the task is stochastic, multiple engines have to be provided, the number

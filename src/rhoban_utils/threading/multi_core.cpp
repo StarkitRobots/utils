@@ -59,6 +59,30 @@ void MultiCore::runParallelTask(Task t,
 
 void MultiCore::runParallelStochasticTask(StochasticTask st,
                                           int nb_tasks,
+                                          int max_threads,
+                                          std::default_random_engine * engine)
+{
+  // How much threads will be really used
+  int nb_threads = max_threads;
+  if (nb_tasks < max_threads) {
+    nb_threads = nb_tasks;
+  }
+  // Initializing engines
+  std::vector<std::default_random_engine> engines(nb_threads);
+  unsigned int min = std::numeric_limits<unsigned int>::lowest();
+  unsigned int max = std::numeric_limits<unsigned int>::max();
+  std::uniform_int_distribution<unsigned int> seed_distrib(min, max);
+  for (int i = 0; i < nb_threads; i++)
+  {
+    engines[i].seed(seed_distrib(*engine));
+  }
+  // Forwarding evaluation
+  runParallelStochasticTask(st, nb_tasks, &engines);
+}
+
+
+void MultiCore::runParallelStochasticTask(StochasticTask st,
+                                          int nb_tasks,
                                           std::vector<std::default_random_engine> * engines)
 {
   if (engines == nullptr || engines->size() == 0) {
