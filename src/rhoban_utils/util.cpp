@@ -26,31 +26,6 @@ using namespace std;
 namespace rhoban_utils
 {
 
-std::string slurpFile(const std::string& path)
-{
-  std::ifstream in(path, std::ios::in | std::ios::binary);
-  if (in)
-  {
-    std::string contents;
-    in.seekg(0, std::ios::end);
-    contents.resize(in.tellg());
-    in.seekg(0, std::ios::beg);
-    in.read(&contents[0], contents.size());
-    in.close();
-    return(contents);
-  }
-  throw std::runtime_error("rhoban_utils::slurpFile: Failed to open file '" + path + "'");
-}
-
-list<string> &split_list(const string &s, char delim, list<string> &elems) {
-    stringstream ss(s);
-    string item;
-    while(getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
 vector<string> &split(const string &s, char delim, vector<string> &elems) {
     stringstream ss(s);
     string item;
@@ -58,88 +33,6 @@ vector<string> &split(const string &s, char delim, vector<string> &elems) {
         elems.push_back(item);
     }
     return elems;
-}
-
-string system_time() {
-  time_t t = time(0);   // get time now
-  struct tm * now = localtime( & t );
-  stringstream str;
-  str << (now->tm_year + 1900) << '-' 
-       << (now->tm_mon + 1) << '-'
-       <<  now->tm_mday
-       << "-" << now->tm_hour
-       << "-" << now->tm_min
-       << "-" << now->tm_sec;
-  return str.str();
-}
-
-bool endsWith(std::string const &fullString, std::string const &ending)
-{
-    if (fullString.length() >= ending.length()) {
-        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-    } else {
-        return false;
-    }
-}
-
-vector<string> getLines(const string &header)
-{
-    vector<string> lines;
-    string line = "";
-    for (unsigned int pos=0; pos<header.length(); pos++) {
-        if (header[pos] == '\r' || header[pos] == '\n') {
-            if (line != "") {
-                lines.push_back(line);
-            }
-            line = "";
-        } else {
-            line += header[pos];
-        }
-    }
-    return lines;
-}
-
-std::string camelize(std::string input)
-{
-#ifndef MSVC
-    std::string output;
-    bool caps = false;
-
-    for (unsigned int k=0; k<input.size(); k++) {
-        if (std::isspace(input[k])) {
-            caps = true;
-        } else {
-            if (caps) {
-                caps = false;
-                output += toupper(input[k]);
-            } else {
-                output += input[k];
-            }
-        }
-    }
-
-    return output;
-#else
-	throw std::exception("Unimplemented");
-#endif
-}
-
-string today()
-{
-	time_t tt;
-	time(&tt);
-	auto ttt = localtime(&tt);
-	char result[80];
-	strftime(result, 80, "%Y_%m_%d", ttt);
-	return string(result);
-}
-
-std::string file_get_contents(std::string path)
-{
-    std::ifstream ifs(path.c_str());
-    std::string content((std::istreambuf_iterator<char>(ifs)),
-            (std::istreambuf_iterator<char>()));
-    return content;
 }
 
 void file_put_contents(std::string path, std::string contents)
