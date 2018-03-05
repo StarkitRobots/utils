@@ -143,7 +143,17 @@ static Json::Value vector2Json(const std::vector<T> & values)
   return v;
 }
 
-Json::Value vector2Json(const Eigen::VectorXd & v);
+/// Default version for fixed size vectors
+template<int D> Json::Value vector2Json(const Eigen::Matrix<double,D,1> & vec) {
+  Json::Value v;
+  for (int row = 0; row < vec.rows(); row++) {
+    v.append(vec(row));
+  }
+  return v;
+}
+/// Specialization of the template for Eigen::VectorXd
+template<> Json::Value vector2Json(const Eigen::Matrix<double,-1,1> & v);
+
 Json::Value matrix2Json(const Eigen::MatrixXd & m);
 
 //TODO: a solution has to be found for fixed size vectors!

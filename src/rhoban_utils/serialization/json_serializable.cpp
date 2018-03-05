@@ -181,7 +181,7 @@ template <> Json::Value val2Json<std::string>(const std::string & val) {
   return Json::Value(val);
 }
 
-Json::Value vector2Json(const Eigen::VectorXd & vec)
+template<> Json::Value vector2Json(const Eigen::Matrix<double,-1,1> & vec)
 {
   Json::Value v;
   v["rows"] = (int)vec.rows();
