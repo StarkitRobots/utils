@@ -179,7 +179,7 @@ template<int R,int C> Eigen::Matrix<double,R,C> json2eigen(const Json::Value & v
         throw JsonParsingError("json2eigen<" + class_name + ">: Expecting an array at row "
                                + std::to_string(row));
       }
-      if (!row_v.size() != C) {
+      if (row_v.size() != C) {
         throw JsonParsingError("json2eigen<" + class_name + ">: invalid array size ("
                                + std::to_string(row_v.size()) + ") at row "
                                + std::to_string(row));
