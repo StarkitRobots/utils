@@ -156,11 +156,60 @@ template<> Json::Value vector2Json(const Eigen::Matrix<double,-1,1> & v);
 
 Json::Value matrix2Json(const Eigen::MatrixXd & m);
 
-//TODO: a solution has to be found for fixed size vectors!
-template <> Eigen::Vector2d getJsonVal<Eigen::Vector2d>(const Json::Value & v);
-template <> Eigen::Vector3d getJsonVal<Eigen::Vector3d>(const Json::Value & v);
-template <> Eigen::VectorXd getJsonVal<Eigen::VectorXd>(const Json::Value & v);
-template <> Eigen::MatrixXd getJsonVal<Eigen::MatrixXd>(const Json::Value & v);
+/// Default implementation for fixed size matrices
+/// @throw JsonParsingError if size does not match
+template<int R,int C> Eigen::Matrix<double,R,C> json2eigen(const Json::Value & v) {
+  std::string class_name = "Eigen::Matrix" + std::to_string(R) + "," + std::to_string(C) + ">";
+  if (!v.isArray()) {
+    throw JsonParsingError("json2eigen<" + class_name + ">: Expecting an array");
+  }
+  if (v.size() != R) {
+    throw JsonParsingError("json2eigen<" + class_name + ">: " + std::to_string(v.size())
+                           + " rows received");
+  }
+  Eigen::Matrix<double,R,C> m;
+  for (Json::ArrayIndex row = 0; row < R; row++) {
+    const Json::Value & row_v = v[row];
+    if (C == 1) {
+      // Handling vector case
+      m(row,0) = getJsonVal<double>(row_v);
+    } else {
+      // Handling matrix case
+      if (!row_v.isArray()) {
+        throw JsonParsingError("json2eigen<" + class_name + ">: Expecting an array at row "
+                               + std::to_string(row));
+      }
+      if (!row_v.size() != C) {
+        throw JsonParsingError("json2eigen<" + class_name + ">: invalid array size ("
+                               + std::to_string(row_v.size()) + ") at row "
+                               + std::to_string(row));
+      }
+      for (Json::ArrayIndex col = 0; col < C; col++) {
+        m(row,col) = getJsonVal<double>(row_v[col]);
+      }
+    }
+  }
+  return m;
+}
+
+/// Specialization for vectorXd
+template <> Eigen::Matrix<double,-1,1> json2eigen<-1,1>(const Json::Value & v);
+/// Specialization for matrixXd
+template <> Eigen::Matrix<double,-1,-1> json2eigen<-1,-1>(const Json::Value & v);
+
+template <int R, int C>
+Eigen::Matrix<double,R,C> readEigen(const Json::Value & v, const std::string & key) {
+  checkMember(v, key);
+  return json2eigen<R,C>(v[key]);
+}
+
+template <int R, int C>
+void tryReadEigen(const Json::Value & v, const std::string & key,
+                  Eigen::Matrix<double,R,C> * ptr) {
+  if (v.isObject() && v.isMember(key)) {
+    *ptr = json2eigen<R,C>(v[key]);
+  }
+}
 
 template <typename T>
 std::vector<T> readVector(const Json::Value & v,

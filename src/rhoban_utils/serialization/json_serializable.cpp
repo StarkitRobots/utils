@@ -207,39 +207,7 @@ Json::Value matrix2Json(const Eigen::MatrixXd & m)
   return v;        
 }
 
-template <> Eigen::Vector2d getJsonVal<Eigen::Vector2d>(const Json::Value & v)
-{
-  if (!v.isArray()) {
-    throw JsonParsingError("getJsonVal<Eigen::Vector2d>: Expecting an array");
-  }
-  if (v.size() != 2) {
-    throw JsonParsingError("getJsonVal<Eigen::Vector2d>: Expecting 2 values, received: "
-                           + std::to_string(v.size()));
-  }
-  Eigen::Vector2d vec;
-  for (Json::ArrayIndex row = 0; row < 2; row++) {
-    vec(row) = getJsonVal<double>(v[row]);
-  }
-  return vec;
-}
-
-template <> Eigen::Vector3d getJsonVal<Eigen::Vector3d>(const Json::Value & v)
-{
-  if (!v.isArray()) {
-    throw JsonParsingError("getJsonVal<Eigen::Vector3d>: Expecting an array");
-  }
-  if (v.size() != 3) {
-    throw JsonParsingError("getJsonVal<Eigen::Vector3d>: Expecting 3 values, received: "
-                           + std::to_string(v.size()));
-  }
-  Eigen::Vector3d vec;
-  for (Json::ArrayIndex row = 0; row < 3; row++) {
-    vec(row) = getJsonVal<double>(v[row]);
-  }
-  return vec;
-}
-
-template <> Eigen::VectorXd getJsonVal<Eigen::VectorXd>(const Json::Value & v)
+template <> Eigen::Matrix<double,-1,1> json2eigen<-1,1>(const Json::Value & v)
 {
   if (!v.isObject()) {
     throw JsonParsingError("getJsonVal<Eigen::VectorXd>: Expecting an object");
@@ -260,7 +228,7 @@ template <> Eigen::VectorXd getJsonVal<Eigen::VectorXd>(const Json::Value & v)
   return vec;
 }
 
-template <> Eigen::MatrixXd getJsonVal<Eigen::MatrixXd>(const Json::Value & v)
+template <> Eigen::Matrix<double,-1,-1> json2eigen<-1,-1>(const Json::Value & v)
 {
   if (!v.isObject()) {
     throw JsonParsingError("getJsonVal<Eigen::MatrixXd>: Expecting an object");
