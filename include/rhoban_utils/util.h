@@ -16,6 +16,11 @@
 #include <stdexcept>
 #include <ctime>
 
+#define DEBUG_INFO                            \
+  std::string(__FUNCTION__) + ":"             \
+  + rhoban_utils::getBaseName(__FILE__) + ":" \
+  + std::to_string(__LINE__)  + ": "
+
 namespace rhoban_utils
 {
 
