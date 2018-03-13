@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <string>
 
 namespace rhoban_utils {
 
@@ -19,6 +20,11 @@ class TimeStamp : public std::chrono::time_point<std::chrono::steady_clock>
 
 };
 
+/// Uses system_clock to extract a formatted time: format is:
+/// - YYYY_MM_DD_HHhMMmSSs Ex: 2016_03_25_35h23m12s
+/// Funtion is reentrant
+std::string getFormattedTime();
+  
 }
 
 double diffSec(const rhoban_utils::TimeStamp & src,

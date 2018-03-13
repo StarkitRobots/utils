@@ -1,5 +1,7 @@
 #include "rhoban_utils/timing/time_stamp.h"
 
+#include <ctime>
+
 using namespace std::chrono;
 
 namespace rhoban_utils {
@@ -26,11 +28,24 @@ double TimeStamp::getTimeSec() const
 
 double TimeStamp::getTimeMS() const
 {
-    return duration_cast<std::chrono::duration<double, std::milli>>(
-        time_since_epoch()).count();
+  return duration_cast<std::chrono::duration<double, std::milli>>(
+      time_since_epoch()).count();
+}
+
+std::string getFormattedTime() {
+ system_clock::time_point now = system_clock::now();
+ time_t tt = system_clock::to_time_t(now);
+ struct tm tm;
+ localtime_r(&tt, &tm);
+ char buffer[80];// Buffer is big enough
+ sprintf(buffer,"%4d_%2d_%2d_%2dh%2dm%2ds",
+         tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+         tm.tm_hour, tm.tm_min, tm.tm_sec);
+ return std::string(buffer);
 }
 
 }
+
 
 double diffSec(const rhoban_utils::TimeStamp & src,
     const rhoban_utils::TimeStamp & dst)
