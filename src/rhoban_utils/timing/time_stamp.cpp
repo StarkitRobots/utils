@@ -38,7 +38,7 @@ std::string getFormattedTime() {
  struct tm tm;
  localtime_r(&tt, &tm);
  char buffer[80];// Buffer is big enough
- sprintf(buffer,"%4d_%2d_%2d_%2dh%2dm%2ds",
+ sprintf(buffer,"%04d_%02d_%02d_%02dh%02dm%02ds",
          tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
          tm.tm_hour, tm.tm_min, tm.tm_sec);
  return std::string(buffer);
