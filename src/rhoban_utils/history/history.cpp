@@ -1,5 +1,6 @@
 #include <rhoban_utils/angle.h>
 #include "rhoban_utils/history/history.h"
+#include "rhoban_utils/util.h"
 
 namespace rhoban_utils
 {
@@ -55,8 +56,9 @@ void History::pushValue(double timestamp, double value)
         _mutex.unlock();
         return;
     }
+    std::pair<double, double> entry(timestamp, value);
     //Insert the value
-    _values.push_back(std::pair<double, double>(timestamp, value));
+    _values.push_back(entry);
     //Shrink the queue if not in logging mode
     while (
         !_isLogging &&
@@ -69,6 +71,10 @@ void History::pushValue(double timestamp, double value)
     //data timestampt pushed after startLogging() is called
     if (_isLogging && _startLoggingTime < 0.0) {
         _startLoggingTime = timestamp;
+    }
+    //Write new entries for all named sessions
+    for (auto & namedLog : _activeLogs) {
+      namedLog.second->push_back(entry);
     }
     //Unlock
     _mutex.unlock();
@@ -159,14 +165,7 @@ void History::stopLogging(std::ostream& os, bool binary)
             }
         }
     } else {
-        // When writing in binary, use all values
-        size_t size = _values.size();
-        os.write((const char*)&size, sizeof(size_t));
-        for (const auto& it : _values) {
-            //Write binary data
-            os.write((const char*)&(it.first), sizeof(double));
-            os.write((const char*)&(it.second), sizeof(double));
-        }
+      writeBinary(_values, os);
     }
     _mutex.unlock();
 }
@@ -215,6 +214,66 @@ void History::loadReplay(
         //Insert the value
         _values.push_back(std::pair<double, double>(timestamp, value));
     }
+}
+
+
+void History::startNamedLog(const std::string & sessionName)
+{
+  std::cout << "Opening a log at '" << sessionName << "'" << std::endl;
+  _mutex.lock();
+  if (_activeLogs.count(sessionName) > 0) {
+    _mutex.unlock();
+    throw std::logic_error(DEBUG_INFO + " there is already a session with name '"
+                           + sessionName + "'");
+  }
+  _activeLogs[sessionName] =
+    std::unique_ptr<std::deque<TimedValue>>(new std::deque<TimedValue>());
+  _mutex.unlock();
+}
+
+void History::freezeNamedLog(const std::string & sessionName)
+{
+  _mutex.lock();
+  if (_activeLogs.count(sessionName) == 0) {
+    _mutex.unlock();
+    throw std::logic_error(DEBUG_INFO + " there is no active session with name '"
+                           + sessionName + "'");
+  }
+  if (_frozenLogs.count(sessionName) > 0) {
+    _mutex.unlock();
+    throw std::logic_error(DEBUG_INFO + " there is already a frozen session with name '"
+                           + sessionName + "'");
+  }
+  _frozenLogs[sessionName] = std::move(_activeLogs[sessionName]);
+  _activeLogs.erase(sessionName);
+  _mutex.unlock();
+}
+
+void History::closeFrozenLog(const std::string & sessionName, std::ostream& os)
+{
+  _mutex.lock();
+  if (_frozenLogs.count(sessionName) == 0) {
+    _mutex.unlock();
+    throw std::logic_error(DEBUG_INFO + " there is no open session with name '"
+                           + sessionName + "'");
+  }
+  std::unique_ptr<std::deque<TimedValue>> values = std::move(_frozenLogs[sessionName]);
+  _frozenLogs.erase(sessionName);
+  _mutex.unlock();
+
+  writeBinary(*values, os);
+}
+
+
+void History::writeBinary(const std::deque<History::TimedValue> & values, std::ostream & os) {
+  // When writing in binary, use all values
+  size_t size = values.size();
+  os.write((const char*)&size, sizeof(size_t));
+  for (const auto& it : values) {
+    //Write binary data
+    os.write((const char*)&(it.first), sizeof(double));
+    os.write((const char*)&(it.second), sizeof(double));
+  }
 }
 
 }

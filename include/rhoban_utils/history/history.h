@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <deque>
+#include <memory>
 #include <mutex>
 #include <stdexcept>
 #include <iomanip>
@@ -26,6 +27,8 @@ class History
             AngleRad=1
         };
 
+        typedef std::pair<double,double> TimedValue;
+
         /**
          * Initialization in timestamp duration
          */
@@ -44,8 +47,8 @@ class History
         /**
          * Return first and last recorded point
          */
-        const std::pair<double, double>& front() const;
-        const std::pair<double, double>& back() const;
+        const TimedValue& front() const;
+        const TimedValue& back() const;
 
         /**
          * Insert a new value in the container
@@ -74,6 +77,26 @@ class History
         void stopLogging(std::ostream& os, bool binary = false);
 
         /**
+         * Open a log session with the given name, throws a logic_error if a
+         * session with the given name is already opened
+         */
+        void startNamedLog(const std::string & sessionName);
+
+
+        /**
+         * Move the session with the given name from the active set to the
+         * frozen set. Low time consumption.
+         */ 
+        void freezeNamedLog(const std::string & sessionName);
+
+        /**
+         * Close a log session with the given name, throws a logic_error if
+         * there is no frozen session with the given name opened. High time
+         * consumption.
+         */
+        void closeFrozenLog(const std::string & sessionName, std::ostream& os);
+
+        /**
          * Read data from given input stream 
          * until either the stream end or the first
          * commented "#" line.
@@ -87,6 +110,11 @@ class History
             double timeShift = 0.0);
 
     private:
+
+        /**
+         * Write the history to the provided stream
+         */
+        static void writeBinary(const std::deque<TimedValue> & values, std::ostream & os);
 
         /**
          * Mutex for concurent access
@@ -114,7 +142,16 @@ class History
          * Values container indexed 
          * by their timestamp
          */
-        std::deque<std::pair<double, double>> _values;
+        std::deque<TimedValue> _values;
+
+        /**
+         * Named log sessions to which the object is actively writting
+         */
+        std::map<std::string,std::unique_ptr<std::deque<TimedValue>>> _activeLogs;
+        /**
+         * Named log sessions waiting to be written
+         */
+        std::map<std::string,std::unique_ptr<std::deque<TimedValue>>> _frozenLogs;
 };
 
 }
