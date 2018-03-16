@@ -38,15 +38,6 @@ set(SOURCES_DIRECTORIES
   src/rhoban_utils/timing
 )
 
-if (model_FOUND)
-    message("Rhoban Model found!")
-    include_directories(${model_INCLUDE_DIRS})
-    set (SOURCES_DIRECTORIES
-        ${SOURCES_DIRECTORIES}
-        moves
-    )
-endif ()
-
 #Include Sources sub sources
 foreach (DIRECTORY ${SOURCES_DIRECTORIES})
     message(STATUS "-- Sources: Adding ${DIRECTORY}/")
