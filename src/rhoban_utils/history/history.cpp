@@ -219,7 +219,6 @@ void History::loadReplay(
 
 void History::startNamedLog(const std::string & sessionName)
 {
-  std::cout << "Opening a log at '" << sessionName << "'" << std::endl;
   _mutex.lock();
   if (_activeLogs.count(sessionName) > 0) {
     _mutex.unlock();
