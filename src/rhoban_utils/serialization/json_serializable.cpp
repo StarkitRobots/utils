@@ -51,7 +51,7 @@ void JsonSerializable::loadFile()
 {
   loadFile(getClassName() + ".json");
 }
-  
+
 void JsonSerializable::loadFile(const std::string & file_path)
 {
   loadFile(getBaseName(file_path), getDirName(file_path));
@@ -96,6 +96,20 @@ Json::Value JsonSerializable::toFactoryJson() const
   return v;
 }
 
+std::string JsonSerializable::toJsonString() const
+{
+    Json::FastWriter writer;
+
+    return writer.write(toJson());
+}
+
+std::string JsonSerializable::toJsonStringHuman() const
+{
+    Json::StyledWriter writer;
+
+    return writer.write(toJson());
+}
+
 void JsonSerializable::read(const Json::Value & v, const std::string & key, const std::string & dir_name)
 {
   checkMember(v,key);
@@ -111,7 +125,7 @@ void JsonSerializable::tryRead(const Json::Value & v, const std::string & key, c
   if (!v.isObject() || !v.isMember(key)){
     return;
   }
-  read(v,key,dir_name); 
+  read(v,key,dir_name);
 }
 
 void checkMember(const Json::Value & v, const std::string & key)
@@ -126,7 +140,7 @@ template <> bool getJsonVal<bool>(const Json::Value & v)
   if (!v.isBool()) {
     throw JsonParsingError("Expecting a bool");
   }
-  return v.asBool(); 
+  return v.asBool();
 }
 
 template <> int getJsonVal<int>(const Json::Value & v)
@@ -134,7 +148,7 @@ template <> int getJsonVal<int>(const Json::Value & v)
   if (!v.isInt()) {
     throw JsonParsingError("Expecting an int");
   }
-  return v.asInt(); 
+  return v.asInt();
 }
 
 template <> float getJsonVal<float>(const Json::Value & v)
@@ -142,7 +156,7 @@ template <> float getJsonVal<float>(const Json::Value & v)
   if (!v.isDouble()) {
     throw JsonParsingError("Expecting a float");
   }
-  return (float)v.asDouble(); 
+  return (float)v.asDouble();
 }
 
 template <> double getJsonVal<double>(const Json::Value & v)
@@ -150,7 +164,7 @@ template <> double getJsonVal<double>(const Json::Value & v)
   if (!v.isDouble()) {
     throw JsonParsingError("Expecting a double");
   }
-  return v.asDouble(); 
+  return v.asDouble();
 }
 
 template <> std::string getJsonVal<std::string>(const Json::Value & v)
@@ -158,7 +172,7 @@ template <> std::string getJsonVal<std::string>(const Json::Value & v)
   if (!v.isString()) {
     throw JsonParsingError("Expecting a string");
   }
-  return v.asString(); 
+  return v.asString();
 }
 
 template <> Json::Value val2Json<bool>(const bool & val) {
@@ -188,7 +202,7 @@ template<> Json::Value vector2Json(const Eigen::Matrix<double,-1,1> & vec)
   for (int row = 0; row < vec.rows(); row++) {
     v["values"].append(vec(row));
   }
-  return v;        
+  return v;
 }
 
 
@@ -204,7 +218,7 @@ Json::Value matrix2Json(const Eigen::MatrixXd & m)
     }
     v["values"].append(row_data);
   }
-  return v;        
+  return v;
 }
 
 template <> Eigen::Matrix<double,-1,1> json2eigen<-1,1>(const Json::Value & v)

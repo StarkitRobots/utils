@@ -24,7 +24,7 @@ public:
   virtual ~JsonSerializable();
 
   virtual std::string getClassName() const = 0;
-  
+
   /// loads the object from the default file
   /// the default filename is the name of the class + .json
   virtual void loadFile();
@@ -55,7 +55,10 @@ public:
   /// Represent current object as a Json::Value containing information on class for factories
   Json::Value toFactoryJson() const;
 
-  
+  /// Returns a string serialized using fast writer (for machine)
+  std::string toJsonString() const;
+  std::string toJsonStringHuman() const;
+
   /// Read the content of the object if v[key] exists
   /// Otherwise: throws a JsonParsingError
   void read(const Json::Value & v, const std::string & key, const std::string & dir_name = "./");
@@ -96,10 +99,10 @@ template <typename T> T read(const Json::Value & v, const std::string & key)
   try {
     return getJsonVal<T>(v[key]);
   } catch (const JsonParsingError & error) {
-    throw JsonParsingError(error.what() + std::string(" at '") + key + "'");   
+    throw JsonParsingError(error.what() + std::string(" at '") + key + "'");
   }
 }
-  
+
 /// - if v[key] exists and has type 'T', write the value in ptr
 /// - if v[key] does not exist, do not modify ptr
 /// - if v[key] exists but has inappropriate type, throws a JsonParsingError
