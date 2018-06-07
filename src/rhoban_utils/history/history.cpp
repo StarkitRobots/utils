@@ -216,6 +216,15 @@ void History::loadReplay(
     }
 }
 
+std::deque<History::TimedValue> History::getValues()
+{
+    return _values;
+}
+
+void History::clear()
+{
+    _values.clear();    
+}
 
 void History::startNamedLog(const std::string & sessionName)
 {
