@@ -22,7 +22,7 @@ double variance(std::vector<double> values, double *avg_)
 {
     double avg = average(values);
     
-    if (avg_ != NULL) {
+    if (avg_ != nullptr) {
         *avg_ = avg;
     }
     
