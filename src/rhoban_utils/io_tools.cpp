@@ -1,5 +1,7 @@
 #include "rhoban_utils/io_tools.h"
 
+#include "rhoban_utils/util.h"
+
 #include <fstream>
 #include <stdexcept>
 
@@ -22,6 +24,14 @@ std::string file2string(const std::string &path)
     return contents;
   }
   throw std::runtime_error("rhoban_utils::file2string: Failed to open file '" + path + "'");
+}
+
+std::vector<std::string> file2lines(const std::string &path)
+{
+  std::string content = file2string(path);
+  std::vector<std::string> lines;
+  split(content, '\n', lines);
+  return lines;
 }
 
 int writeInt(std::ostream & out, int val)

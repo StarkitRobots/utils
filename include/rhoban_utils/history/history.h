@@ -108,6 +108,16 @@ class History
             std::ifstream& is, 
             bool binary = false, 
             double timeShift = 0.0);
+            
+        /**
+         * Getting all values
+         */
+        std::deque<TimedValue> getValues();
+        
+        /**
+         * Clearing history values
+         */
+        void clear();
 
     private:
 

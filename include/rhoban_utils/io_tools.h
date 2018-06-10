@@ -2,12 +2,16 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace rhoban_utils
 {
 
 /// Return the content of the whole file as a string
 std::string file2string(const std::string &path);
+
+/// Return a vector containing the lines of the file (uses '\n' as separator)
+std::vector<std::string> file2lines(const std::string &path);
 
 /// WARNING:
 /// Those versions are implemented with the quick and dirty approach.

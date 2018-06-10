@@ -371,6 +371,19 @@ public:
       stream_builders_by_id[id] = builder;
     }
 
+  template <class ChildType>
+  void importJsonBuilders(const Factory<ChildType> & other_factory) {
+    for (const auto & entry : other_factory.getJsonBuilders()) {
+      registerBuilder(entry.first,[entry](const Json::Value & v, const std::string & dir){
+          return std::unique_ptr<T>(entry.second(v, dir).release());
+        });
+    }
+  }
+
+  const std::map<std::string, JsonBuilder> getJsonBuilders() const {
+    return json_builders;
+  }
+
   /// List all the known builders to the stream
   void listBuilders(std::ostream & out) const
     {
