@@ -215,7 +215,8 @@ void UDPBroadcast::retrieveBroadcastAddress()
         std::cout << strerror(errno) << std::endl;
         return;
     }
-
+    struct ifaddrs* start = ifap;
+    
     while (ifap != NULL) {
         SOCKADDR* addr = ifap->ifa_broadaddr;
         if (
@@ -226,6 +227,8 @@ void UDPBroadcast::retrieveBroadcastAddress()
         }
         ifap = ifap->ifa_next;
     }
+
+    freeifaddrs(start);
 }
 
 }
