@@ -176,7 +176,7 @@ void UDPBroadcast::broadcastMessage(unsigned char* data, size_t len)
     _countSend++;
 }
         
-bool UDPBroadcast::checkMessage(unsigned char* data, size_t& len)
+bool UDPBroadcast::checkMessage(unsigned char* data, size_t& len, std::string *ip)
 {
     if (_portRead == -1) {
         return false;
@@ -189,7 +189,10 @@ bool UDPBroadcast::checkMessage(unsigned char* data, size_t& len)
     }
    
 
-    int size = recvfrom(_readFd, (char *) data, len, MSG_DONTWAIT, NULL, NULL);
+    struct sockaddr_in src_addr;
+    socklen_t addrlen = sizeof(src_addr);
+    int size = recvfrom(_readFd, (char *) data, len, MSG_DONTWAIT, (struct sockaddr*)&src_addr, &addrlen);
+    
     if (size == -1) {
         if (errno != EAGAIN && errno != EWOULDBLOCK) {
             std::cout << 
@@ -198,6 +201,10 @@ bool UDPBroadcast::checkMessage(unsigned char* data, size_t& len)
         } 
         return false;
     } else {
+        if (ip != 0) {
+            *ip = inet_ntoa(src_addr.sin_addr);
+        }
+        
         len = size;
         return true;
     }
