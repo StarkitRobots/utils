@@ -262,10 +262,10 @@ TEST(getJsonVal,TestVector2dExceptionArray){
     Eigen::Vector2d result;
     try{
       result = json2eigen<2,1>(v);
-    FAIL();
+      FAIL();
     }
     catch(JsonParsingError & err) {
-        EXPECT_EQ(err.what(),std::string("json2eigen<Eigen::Matrix<2,1>: Expecting an array"));
+      EXPECT_EQ(err.what(),std::string("json2eigen<Eigen::Matrix<2,1>>: Expecting an array"));
     }
 
 }
@@ -282,7 +282,7 @@ TEST(getJsonVal,TestVector2dException2Values){
       FAIL();
     }
     catch(JsonParsingError & err) {
-      EXPECT_EQ(err.what(),std::string("json2eigen<Eigen::Matrix<2,1>>: 3 rows received"));
+      EXPECT_EQ(err.what(),std::string("json2eigen<Eigen::Matrix<2,1>>: 4 rows received"));
     }
 }
 
@@ -362,15 +362,15 @@ TEST(vector2Json,TestSuccess){
     Input(0) = 1.0;
     Input(1) = 2.0;
     Json::Value v1;
-    v1["data"][0] = 1.0;
-    v1["data"][1] = 2.0;
+    v1["values"][0] = 1.0;
+    v1["values"][1] = 2.0;
     v1["rows"] = 2;
     Json::Value v2;
     
     v2 = vector2Json(Input);
     EXPECT_EQ(v1["rows"],v2["rows"]);
-    EXPECT_EQ(v1["data"][0],v2["data"][0]);
-    EXPECT_EQ(v1["data"][1],v2["data"][1]);
+    EXPECT_EQ(v1["values"][0],v2["values"][0]);
+    EXPECT_EQ(v1["values"][1],v2["values"][1]);
 }
 
 TEST(vector2Json,TestFailed){
@@ -379,13 +379,13 @@ TEST(vector2Json,TestFailed){
     Input(0) = 5.0;
     Input(1) = 2.0;
     Json::Value v1;
-    v1["data"][0] = 5.0;
-    v1["data"][1] = 3.0;
+    v1["values"][0] = 5.0;
+    v1["values"][1] = 3.0;
     v1["rows"] = 2;
     Json::Value v2;
 
     v2 = vector2Json(Input);
-    EXPECT_FALSE(v2["data"][0] == v1["data"][0] && v2["data"][1] == v1["data"][1] && v2["rows"] == v1["rows"] );
+    EXPECT_FALSE(v2["values"][0] == v1["values"][0] && v2["values"][1] == v1["values"][1] && v2["rows"] == v1["rows"] );
 }
 //TODO: solve issue with function getJsonVal<Eigen::Vector>().
 TEST(vector2Json_GetJsonVal,DISABLED_TestSuccess){
@@ -518,10 +518,10 @@ TEST(getJsonVal,TestMatrixXdSuccess){
 TEST(readVector,TestSuccess){
     
     Json::Value v;
-    v["data"][0] = 5;
-    v["data"][1] = 3;
+    v["values"][0] = 5;
+    v["values"][1] = 3;
     const Json::Value va = v;
-    const std::string key = "data";
+    const std::string key = "values";
     std::vector<int> expected;
     expected.push_back(5);
     expected.push_back(3);
@@ -552,8 +552,8 @@ TEST(getJsonVal,MatrixXdExceptionObject){
       FAIL();
    }
    catch(JsonParsingError & err){
-        EXPECT_EQ(err.what(),std::string("json2eigen<-1,-1>: Expecting an object"));
-    }
+     EXPECT_EQ(err.what(),std::string("getJsonVal<Eigen::MatrixXd>: Expecting an object"));
+   }
 
 }
 
@@ -570,8 +570,8 @@ TEST(getJsonVal,MatrixXdExceptionArrayValues){
     FAIL();
    }
    catch(JsonParsingError & err){
-        EXPECT_EQ(err.what(),std::string("json2eigen<-1,-1>: Expecting an array for 'values'"));
-    }
+     EXPECT_EQ(err.what(),std::string("getJsonVal<Eigen::MatrixXd>: Expecting an array for 'values'"));
+   }
 
 }
 
@@ -596,7 +596,7 @@ TEST(getJsonVal,TestMatrixXdExceptionRows){
       FAIL();
    }
    catch(JsonParsingError & err){
-        EXPECT_EQ(err.what(),std::string("json2eigen<-1,-1>: Inconsistency in rows numbers"));
+        EXPECT_EQ(err.what(),std::string("getJsonVal<Eigen::MatrixXd>: Inconsistency in rows numbers"));
     }
     
 }
@@ -613,12 +613,12 @@ TEST(getJsonVal,TestMatrixXdExceptionArrayRows){
 
     Eigen::MatrixXd result(3,3);
     try{
-    result = json2eigen<-1,-1>(v1);
-    FAIL();
+      result = json2eigen<-1,-1>(v1);
+      FAIL();
    }
    catch(JsonParsingError & err){
-        EXPECT_EQ(err.what(),std::string("json2eigen<-1,-1>: Expecting an array for row"));
-    }
+     EXPECT_EQ(err.what(),std::string("getJsonVal<Eigen::MatrixXd>: Expecting an array for row"));
+   }
     
 }
 
@@ -643,8 +643,8 @@ TEST(getJsonVal,TestMatrixXdExceptionCols){
     FAIL();
    }
    catch(JsonParsingError & err){
-        EXPECT_EQ(err.what(),std::string("json2eigen<-1,-1>: Inconsistency for cols"));
-    }
+     EXPECT_EQ(err.what(),std::string("getJsonVal<Eigen::MatrixXd>: Inconsistency for cols"));
+   }
     
 }
 
