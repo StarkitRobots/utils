@@ -23,7 +23,7 @@ namespace rhoban_utils
 #ifdef WIN32
         colors = true;
 #else
-        colors = isatty(STDERR_FILENO);
+        colors = true; // isatty(STDERR_FILENO);
 #endif
     }
 

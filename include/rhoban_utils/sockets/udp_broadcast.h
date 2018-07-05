@@ -1,6 +1,7 @@
 #ifndef RHOBAN_UDPBROADCAST_HPP
 #define RHOBAN_UDPBROADCAST_HPP
 
+#include <stdint.h>
 #include <vector>
 #include "common.h"
 
@@ -49,7 +50,7 @@ class UDPBroadcast
          * filled with incomming data and len has been
          * updated
          */
-        bool checkMessage(unsigned char* data, size_t& len);
+        bool checkMessage(unsigned char* data, size_t& len, std::string *ip=0);
 
     private:
 
