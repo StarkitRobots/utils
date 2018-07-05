@@ -162,7 +162,7 @@ Json::Value matrix2Json(const Eigen::MatrixXd & m);
 /// Default implementation for fixed size matrices
 /// @throw JsonParsingError if size does not match
 template<int R,int C> Eigen::Matrix<double,R,C> json2eigen(const Json::Value & v) {
-  std::string class_name = "Eigen::Matrix" + std::to_string(R) + "," + std::to_string(C) + ">";
+  std::string class_name = "Eigen::Matrix<" + std::to_string(R) + "," + std::to_string(C) + ">";
   if (!v.isArray()) {
     throw JsonParsingError("json2eigen<" + class_name + ">: Expecting an array");
   }

@@ -171,7 +171,7 @@ void History::stopLogging(std::ostream& os, bool binary)
 }
 
 void History::loadReplay(
-    std::ifstream& is, bool binary, double timeShift)
+    std::istream& is, bool binary, double timeShift)
 {
     _mutex.lock();
     //Clean the container

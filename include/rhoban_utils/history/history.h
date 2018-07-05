@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <deque>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -105,7 +106,7 @@ class History
          * Optional time shift is apply on read timestamp
          */
         void loadReplay(
-            std::ifstream& is, 
+            std::istream& is, 
             bool binary = false, 
             double timeShift = 0.0);
             
