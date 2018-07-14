@@ -64,7 +64,12 @@ void JsonSerializable::loadFile(const std::string & json_file,
     throw std::logic_error("JsonSerializable::loadFile: dir_path should end by a '/', received : '" + dir_path + "'");
   }
   Json::Value json_content =  file2Json(dir_path + json_file);
-  fromJson(json_content,dir_path);
+  try {
+    fromJson(json_content,dir_path);
+  } catch (const JsonParsingError & exc) {
+    throw JsonParsingError(std::string(exc.what()) + " while reading from file '" + json_file
+                           + "' with path: '" + dir_path + "'");
+  }
 }
 
 void JsonSerializable::saveFile() const
