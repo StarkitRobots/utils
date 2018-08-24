@@ -34,6 +34,7 @@ set(SOURCES_DIRECTORIES
   src/rhoban_utils/serialization
   src/rhoban_utils/sockets
   src/rhoban_utils/spline
+  src/rhoban_utils/tables
   src/rhoban_utils/threading
   src/rhoban_utils/timing
   src/rhoban_utils/stats
