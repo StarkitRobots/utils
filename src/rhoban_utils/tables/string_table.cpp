@@ -71,6 +71,7 @@ size_t StringTable::nbCols() const {
 }
 
 size_t StringTable::nbRows() const {
+  if (nbCols() == 0) return 0;
   return getColumn(column_names[0]).size();
 }
 

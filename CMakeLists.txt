@@ -79,6 +79,7 @@ set(TESTS
   serialization/json_serializable
   spline/function
   spline/poly_spline
+  tables/string_table
   # threading/condition not tested -> adapter for condition API
   threading/multi_core
   # threading/mutex not tested -> adapter for mutex API
