@@ -87,4 +87,10 @@ Eigen::VectorXd DoubleTable::getRow(size_t row) const {
   return data.row(row).transpose();
 }
 
+double DoubleTable::getValue(const std::string & col_name, size_t row) const
+{
+  return getColumn(col_name)(row);
+}
+
+
 }
