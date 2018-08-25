@@ -7,21 +7,21 @@ namespace rhoban_utils {
 
 StringTable::StringTable() {}
 
-StringTable::StringTable(std::vector<std::string> column_names_,
-                         std::map<std::string,Column> data_)
+StringTable::StringTable(const std::vector<std::string> & column_names_,
+                         const std::map<std::string,Column> & data_)
   : column_names(column_names_), data(data_)
 {
 }
 
 StringTable StringTable::buildFromFile(const std::string & file_path,
-                                       char separator=",",
-                                       bool has_header = true) {
+                                       char separator,
+                                       bool has_header) {
   return buildFromString(file2string(file_path), separator, has_header);
 }
 
 StringTable StringTable::buildFromString(const std::string & str,
-                                         char separator=",",
-                                         bool has_header = true) {
+                                         char separator,
+                                         bool has_header) {
   // Convert string to lines
   std::vector<std::string> lines;
   split(str, '\n', lines);
@@ -49,7 +49,7 @@ StringTable StringTable::buildFromString(const std::string & str,
     data[col] = std::vector<std::string>();
   }
 
-  for (int line_idx = first_line_idx; line_idx < lines.size(); line_idx+) {
+  for (size_t line_idx = first_line_idx; line_idx < lines.size(); line_idx++) {
     const std::string & line = lines[line_idx];
     std::vector<std::string> values;
     split(line, separator, values);
@@ -59,7 +59,7 @@ StringTable StringTable::buildFromString(const std::string & str,
                                ": expecting " + std::to_string(column_names.size()) +
                                " columns, " + std::to_string(values.size()) + " received");
     }
-    for (int col = 0; col < values.size(); col++) {
+    for (size_t col = 0; col < values.size(); col++) {
       data[column_names[col]].push_back(values[col]);
     }
   }
@@ -71,14 +71,18 @@ size_t StringTable::nbCols() const {
 }
 
 size_t StringTable::nbRows() const {
-  return data[column_names[0]].size();
+  return getColumn(column_names[0]).size();
 }
 
-const Column & StringTable::getColumn(const std::string & column_name) const {
+const std::vector<std::string> & StringTable::getColumnNames() const {
+  return column_names;
+}
+
+const StringTable::Column & StringTable::getColumn(const std::string & column_name) const {
   return data.at(column_name);
 }
 
-std::map<std::string, std::string> StringTable::getLine(int row) const {
+std::map<std::string, std::string> StringTable::getRow(size_t row) const {
   if (row >= nbRows()) {
     throw std::out_of_range(DEBUG_INFO + "asking for row " + std::to_string(row) +
                             " while table has " + std::to_string(nbRows()) +
@@ -86,7 +90,7 @@ std::map<std::string, std::string> StringTable::getLine(int row) const {
   }
   std::map<std::string, std::string> result;
   for (const std::string col_name : column_names) {
-    result[col_name] = data[col_name][row];
+    result[col_name] = data.at(col_name)[row];
   }
   return result;
 }
