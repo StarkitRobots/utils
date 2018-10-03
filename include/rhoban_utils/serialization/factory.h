@@ -251,25 +251,29 @@ public:
     }
 
   std::map<std::string, std::unique_ptr<T>> readMap(const Json::Value & value,
-                                                    const std::string & key,
+                                                    const std::string & map_key,
                                                     const std::string & dir_path)
     {
       // Checks: object, member then array
       if (!value.isObject()) {
         throw JsonParsingError("Non object node when trying to read from a factory");
       }
-      if (!value.isMember(key)) {
-        throw JsonParsingError("Could not find member '" + key + "'");
+      if (!value.isMember(map_key)) {
+        throw JsonParsingError("Could not find member '" + map_key + "'");
       }
-      const Json::Value map_v = value[key];
+      const Json::Value map_v = value[map_key];
       if (!map_v.isObject()) {
-        throw JsonParsingError("readMap: Member '" + key + "' does not contain an object");
+        throw JsonParsingError("readMap: Member '" + map_key + "' does not contain an object");
       }
       // Building internal objects
       std::map<std::string,std::unique_ptr<T>> result;
       for (Json::ValueConstIterator it = map_v.begin(); it != map_v.end(); it++) {
         const std::string & key = it.name();
-        result[key] = build(map_v[key], dir_path);
+        try {
+          result[key] = build(map_v[key], dir_path);
+        } catch (const JsonParsingError & exc) {
+          throw JsonParsingError(std::string(exc.what()) + " in '" + key + "' in '" + map_key + "'");
+        }
       }
       return result;
     }
