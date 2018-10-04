@@ -229,7 +229,9 @@ Json::Value matrix2Json(const Eigen::MatrixXd & m)
 template <> Eigen::Matrix<double,-1,1> json2eigen<-1,1>(const Json::Value & v)
 {
   if (!v.isObject()) {
-    throw JsonParsingError("getJsonVal<Eigen::VectorXd>: Expecting an object");
+    Json::StreamWriterBuilder builder;
+    throw JsonParsingError("getJsonVal<Eigen::VectorXd>: Received: '"
+                           + Json::writeString(builder,v) + "' while expecting an object");
   }
   size_t rows = read<int>(v,"rows");
   checkMember(v,"values");

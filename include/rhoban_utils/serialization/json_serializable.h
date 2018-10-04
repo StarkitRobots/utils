@@ -203,7 +203,11 @@ template <> Eigen::Matrix<double,-1,-1> json2eigen<-1,-1>(const Json::Value & v)
 template <int R, int C>
 Eigen::Matrix<double,R,C> readEigen(const Json::Value & v, const std::string & key) {
   checkMember(v, key);
-  return json2eigen<R,C>(v[key]);
+  try {
+    return json2eigen<R,C>(v[key]);
+  } catch (const JsonParsingError & exc) {
+    throw JsonParsingError(std::string(exc.what()) + " in '" + key + "'");
+  }
 }
 
 template <int R, int C>
