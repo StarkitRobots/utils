@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 
 #include <exception>
+#include <set>
 
 namespace rhoban_utils
 {
@@ -129,10 +130,32 @@ std::vector<T> readVector(const Json::Value & v, const std::string & key)
 }
 
 template <typename T>
+std::set<T> readSet(const Json::Value & v, const std::string & key)
+{
+  checkMember(v,key);
+  if (!v[key].isArray()) {
+    throw JsonParsingError("readVector(): Value at '" + key + "' is not an array");
+  }
+  std::set<T> result;
+  for (Json::ArrayIndex idx=0; idx < v[key].size();idx++) {
+    result.insert(getJsonVal<T>(v[key][idx]));
+  }
+  return result;
+}
+
+template <typename T>
 void tryReadVector(const Json::Value & v, const std::string & key, std::vector<T> * ptr)
 {
   if (v.isObject() && v.isMember(key)) {
     *ptr = readVector<T>(v, key);
+  }
+}
+
+template <typename T>
+void tryReadSet(const Json::Value & v, const std::string & key, std::set<T> * ptr)
+{
+  if (v.isObject() && v.isMember(key)) {
+    *ptr = readSet<T>(v, key);
   }
 }
 
@@ -142,6 +165,18 @@ static Json::Value vector2Json(const std::vector<T> & values)
   Json::Value v;
   for (Json::ArrayIndex idx = 0; idx < values.size(); idx++) {
     v[idx] = val2Json(values[idx]);
+  }
+  return v;
+}
+
+template <typename T>
+static Json::Value set2Json(const std::set<T> & values)
+{
+  Json::Value v;
+  Json::ArrayIndex idx = 0;
+  for (const T & value : values) {
+    v[idx] = val2Json(value);
+    idx++;
   }
   return v;
 }
