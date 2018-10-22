@@ -103,16 +103,21 @@ Json::Value JsonSerializable::toFactoryJson() const
 
 std::string JsonSerializable::toJsonString() const
 {
-    Json::FastWriter writer;
-
-    return writer.write(toJson());
+    return json2String(toJson(), false);
 }
 
 std::string JsonSerializable::toJsonStringHuman() const
 {
-    Json::StyledWriter writer;
+    return json2String(toJson(), true);
+}
 
-    return writer.write(toJson());
+std::string json2String(const Json::Value & v, bool human)
+{
+  if(human)
+  {
+    return Json::StyledWriter().write(v);
+  }
+  return Json::FastWriter().write(v);
 }
 
 void JsonSerializable::read(const Json::Value & v, const std::string & key, const std::string & dir_name)
@@ -156,6 +161,14 @@ template <> int getJsonVal<int>(const Json::Value & v)
   return v.asInt();
 }
 
+template <> size_t getJsonVal<size_t>(const Json::Value & v)
+{
+  if (!v.isUInt()) {
+    throw JsonParsingError("Expecting a size_t");
+  }
+  return (size_t) v.asUInt();
+}
+
 template <> float getJsonVal<float>(const Json::Value & v)
 {
   if (!v.isDouble()) {
@@ -186,6 +199,10 @@ template <> Json::Value val2Json<bool>(const bool & val) {
 
 template <> Json::Value val2Json<int>(const int & val) {
   return Json::Value(val);
+}
+
+template <> Json::Value val2Json<size_t>(const size_t & val) {
+  return Json::Value((int)val);
 }
 
 template <> Json::Value val2Json<float>(const float & val) {
