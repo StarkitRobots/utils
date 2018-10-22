@@ -1,5 +1,7 @@
 #include "rhoban_utils/timing/benchmark.h"
 
+#include "rhoban_utils/util.h"
+
 #include <algorithm>
 #include <exception>
 #include <iomanip>
@@ -83,8 +85,8 @@ double Benchmark::close(const char * expectedName, bool print,
   {
     std::ostringstream oss;
     oss << "Invalid close of Benchmark:" << std::endl
-        << "\tReceived: '" << toClose->name << "'" << std::endl
-        << "\tExpected: '" << expectedName  << "'";
+        << "\tActive benchmark name: '" << toClose->name << "'" << std::endl
+        << "\tExpected benchmark name: '" << expectedName  << "'";
     throw std::runtime_error(oss.str());
   }
   return close(print, detailLevel, out);
@@ -108,6 +110,20 @@ double Benchmark::close(bool print, int detailLevel, std::ostream & out)
     delete(toClose);
   }
   return elapsedTime;
+}
+
+
+double Benchmark::closeUntil(const std::string & stopName)
+{
+  while (current != NULL && current->name != stopName) {
+    close();
+  }
+  if (current == NULL) {
+    throw std::runtime_error(DEBUG_INFO
+                             + " closed all benchmarks without finding a benchmark named: '"
+                             + stopName + "'");
+  }
+  return close();
 }
 
 double Benchmark::getTime() const

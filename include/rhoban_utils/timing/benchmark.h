@@ -74,6 +74,16 @@ namespace rhoban_utils {
                           int detailLevel = -1, std::ostream & out = std::cout);
 
       /**
+       * Close active benchmarks until succesfully closing a benchmark named
+       * stopName. This method can be useful to properly close all benchmarks
+       * when an exception is raised.
+       *
+       * Throws a runtime_error if 'stopName' was not found when all benchmarks
+       * were closed
+       */
+      static double closeUntil(const std::string & stopName);
+
+      /**
        * Close the current benchmak and print its output to the file at the
        * given path.
        */
