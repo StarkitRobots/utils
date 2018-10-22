@@ -87,6 +87,7 @@ template <typename T> Json::Value val2Json(const T & val) = delete;
 
 template <> Json::Value val2Json<bool>(const bool & val);
 template <> Json::Value val2Json<int>(const int & val);
+template <> Json::Value val2Json<size_t>(const size_t & val);
 template <> Json::Value val2Json<float>(const float & val);
 template <> Json::Value val2Json<double>(const double & val);
 template <> Json::Value val2Json<std::string>(const std::string & val);
@@ -360,5 +361,8 @@ std::map<std::string,T> readMap(const Json::Value & v,
   checkMember(v,map_name);
   return readMap(v[map_name], dir_name, builder);
 }
+
+/// Returns a string 
+std::string json2String(const Json::Value & v, bool human = true);
 
 }
