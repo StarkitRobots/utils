@@ -25,6 +25,8 @@ public:
                                      char separator=',',
                                      bool has_header = true);
 
+  void writeFile(const std::string & file_path, const std::string & separator = ",") const;
+
   size_t nbCols() const;
   size_t nbRows() const;
 
@@ -35,6 +37,15 @@ public:
 
   /// Return a map with column_name as key and content as value
   std::map<std::string, std::string> getRow(size_t row) const;
+
+  /// Insert a row at the end of the table
+  ///
+  /// Throws a out_of_range exception if number or indices used for row do not
+  /// match the expected column_names
+  void insertRow(const std::map<std::string,std::string> & row);
+
+  /// Remove all existing data from the table, column names are not modified
+  void clearData();
   
 private:
   std::vector<std::string> column_names;

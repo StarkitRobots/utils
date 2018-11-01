@@ -3,6 +3,8 @@
 #include "rhoban_utils/io_tools.h"
 #include "rhoban_utils/util.h"
 
+#include <fstream>
+
 namespace rhoban_utils {
 
 StringTable::StringTable() {}
@@ -66,6 +68,24 @@ StringTable StringTable::buildFromString(const std::string & str,
   return StringTable(column_names, data);
 }
 
+void StringTable::writeFile(const std::string & file_path, const std::string & separator) const {
+  std::ofstream out(file_path);
+  if (out.bad()) {
+    throw std::logic_error(DEBUG_INFO + "Failed to open file: '" + file_path + "'");
+  }
+  // write header
+  appendVector(column_names, out, separator, "","");
+  out << std::endl;
+  // write content
+  for (size_t row = 0; row < nbRows(); row++) {
+    for (size_t col = 0; col < nbCols(); col++) {
+      out << getColumn(column_names[col])[row];
+      if (col < nbCols() - 1) out << separator;
+    }
+    out << std::endl;
+  }
+}
+
 size_t StringTable::nbCols() const {
   return column_names.size();
 }
@@ -94,6 +114,29 @@ std::map<std::string, std::string> StringTable::getRow(size_t row) const {
     result[col_name] = data.at(col_name)[row];
   }
   return result;
+}
+
+void StringTable::insertRow(const std::map<std::string,std::string> & row) {
+  if (row.size() != column_names.size()) {
+    throw std::out_of_range(DEBUG_INFO + "size mismatch: row: " + std::to_string(row.size()) +
+                            " column_names: " + std::to_string(column_names.size()));
+  }
+  // Checking names match
+  for (const auto & entry : row) {
+    if (data.count(entry.first) == 0) {
+      throw std::out_of_range(DEBUG_INFO + "row: '" + entry.first
+                              + "' does not belong to column_names");
+    }
+  }
+  for (const auto & entry : row) {
+    data[entry.first].push_back(entry.second);
+  }
+}
+
+void StringTable::clearData() {
+  for (const std::string & name : column_names) {
+    data[name].clear();
+  }
 }
 
 }
