@@ -18,6 +18,7 @@
 #include <ctime>
 #include <cerrno>
 #include <iomanip>
+#include <sstream>
 
 #include "rhoban_utils/util.h"
 
