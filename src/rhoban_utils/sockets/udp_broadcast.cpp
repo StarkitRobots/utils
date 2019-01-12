@@ -127,7 +127,7 @@ void UDPBroadcast::closeWrite()
     }
 }
         
-void UDPBroadcast::broadcastMessage(unsigned char* data, size_t len)
+void UDPBroadcast::broadcastMessage(const unsigned char* data, size_t len)
 {
     if (_portWrite == -1) {
         return;

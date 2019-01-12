@@ -43,7 +43,7 @@ class UDPBroadcast
         /**
          * Broadcast given UDP message
          */
-        void broadcastMessage(unsigned char* data, size_t len);
+        void broadcastMessage(const unsigned char* data, size_t len);
 
         /**
          * Return true of the given bufffer has been 
