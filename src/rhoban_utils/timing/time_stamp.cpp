@@ -44,6 +44,14 @@ std::string getFormattedTime() {
  return std::string(buffer);
 }
 
+int64_t getSteadyClockOffset() {
+  int64_t steady_ts = duration_cast<duration<int64_t,std::micro>>(
+    steady_clock::now().time_since_epoch()).count();
+  int64_t system_ts = duration_cast<duration<int64_t,std::micro>>(
+    system_clock::now().time_since_epoch()).count();
+  return system_ts - steady_ts;
+}
+
 }
 
 

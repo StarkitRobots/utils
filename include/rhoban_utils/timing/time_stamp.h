@@ -24,7 +24,13 @@ class TimeStamp : public std::chrono::time_point<std::chrono::steady_clock>
 /// - YYYY_MM_DD_HHhMMmSSs Ex: 2016_03_25_35h23m12s
 /// Funtion is reentrant
 std::string getFormattedTime();
-  
+
+/**
+ * Return the offset from steady_clock to system_clock in us:
+ * steady_clock + offset = system_clock
+ */
+int64_t getSteadyClockOffset();
+
 }
 
 double diffSec(const rhoban_utils::TimeStamp & src,
