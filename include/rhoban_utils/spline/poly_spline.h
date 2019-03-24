@@ -5,7 +5,6 @@
 
 namespace rhoban_utils
 {
-
 /**
  * PolySpline
  *
@@ -14,86 +13,85 @@ namespace rhoban_utils
  */
 class PolySpline
 {
-    public:
+public:
+  struct Point
+  {
+    double position;
+    double value;
+    double delta;
+  };
 
-        struct Point {
-            double position;
-            double value;
-            double delta;
-        };
-        
-        typedef std::vector<Point> Points;
+  typedef std::vector<Point> Points;
 
-        /**
-         * Add a point with its x position, y value and 
-         * its derivative slope
-         */
-        void addPoint(double pos, double val, double delta);
+  /**
+   * Add a point with its x position, y value and
+   * its derivative slope
+   */
+  void addPoint(double pos, double val, double delta);
 
-        void clear();
+  void clear();
 
-        /**
-         * Return the spline interpolation 
-         * for given x position
-         */
-        double get(double x) const;
+  /**
+   * Return the spline interpolation
+   * for given x position
+   */
+  double get(double x) const;
 
-        /**
-         * Return the spline interpolation value
-         * with x bound between 0 and 1
-         */
-        double getMod(double x) const;
-        
-        /**
-         * Access to internal Points container
-         */
-        const Points& points() const;
+  /**
+   * Return the spline interpolation value
+   * with x bound between 0 and 1
+   */
+  double getMod(double x) const;
 
-    private:
-        struct Polynom {
-            double a;
-            double b;
-            double c;
-            double d;
-        };
+  /**
+   * Access to internal Points container
+   */
+  const Points& points() const;
 
-        struct Spline {
-            Polynom poly;
-            double min;
-            double max;
-        };
-        
-        typedef std::vector<Spline> Splines;
-        
-        /**
-         * Spline Points container
-         */
-        Points _points;
+private:
+  struct Polynom
+  {
+    double a;
+    double b;
+    double c;
+    double d;
+  };
 
-        /**
-         * Splines container
-         */
-        Splines _splines;
+  struct Spline
+  {
+    Polynom poly;
+    double min;
+    double max;
+  };
 
-        /**
-         * Fast exponentation to compute 
-         * given polynom value
-         */
-        static double polynomValue(
-            double t, const Polynom& p);
+  typedef std::vector<Spline> Splines;
 
-        /**
-         * Fit a polynom between 0 and 1 with
-         * given value and slope
-         */
-        static Polynom polynomFit(
-            double val1, double delta1, 
-            double val2, double delta2);
+  /**
+   * Spline Points container
+   */
+  Points _points;
 
-        /**
-         * Recompute splines interpolation model
-         */
-        void computeSplines();
+  /**
+   * Splines container
+   */
+  Splines _splines;
+
+  /**
+   * Fast exponentation to compute
+   * given polynom value
+   */
+  static double polynomValue(double t, const Polynom& p);
+
+  /**
+   * Fit a polynom between 0 and 1 with
+   * given value and slope
+   */
+  static Polynom polynomFit(double val1, double delta1, double val2, double delta2);
+
+  /**
+   * Recompute splines interpolation model
+   */
+  void computeSplines();
 };
 
-}
+}  // namespace rhoban_utils

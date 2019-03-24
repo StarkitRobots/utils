@@ -5,8 +5,8 @@ using namespace std;
 
 TEST(controlPid, computeNegatifTotal)
 {
-  rhoban_utils::PID* pid1 = new rhoban_utils::PID(1.0,2.0,3.0);
-  float result1 = pid1->compute(-50.0, 2.0, 3.0); //I-val = 0.0
+  rhoban_utils::PID* pid1 = new rhoban_utils::PID(1.0, 2.0, 3.0);
+  float result1 = pid1->compute(-50.0, 2.0, 3.0);  // I-val = 0.0
 
   /* current_setpoint=-50.0;
      current_pos=2.0;
@@ -65,8 +65,8 @@ TEST(controlPid, computePositifTotal2)
   EXPECT_DOUBLE_EQ(45.0, result3);
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
-  testing::InitGoogleTest(&argc,argv);
+  testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

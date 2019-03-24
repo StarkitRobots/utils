@@ -38,24 +38,22 @@
  */
 #define TH_LOG_LEVEL 2
 
-#define TH_CAUTION(...)     LOG_CPP(1, TH_LOG_LEVEL, "thread:caution", __VA_ARGS__)
-#define TH_MSG(...)         LOG_CPP(2, TH_LOG_LEVEL, "thread", __VA_ARGS__)
-#define TH_DEBUG(...)       LOG_CPP(3, TH_LOG_LEVEL, "thread:debug", __VA_ARGS__)
+#define TH_CAUTION(...) LOG_CPP(1, TH_LOG_LEVEL, "thread:caution", __VA_ARGS__)
+#define TH_MSG(...) LOG_CPP(2, TH_LOG_LEVEL, "thread", __VA_ARGS__)
+#define TH_DEBUG(...) LOG_CPP(3, TH_LOG_LEVEL, "thread:debug", __VA_ARGS__)
 
 namespace rhoban_utils
 {
-
 class Thread
 {
-
 protected:
-	/**
-	* thread core
-	*/
-	virtual void execute() = 0;
+  /**
+   * thread core
+   */
+  virtual void execute() = 0;
 
-	void lock();
-	void unlock();
+  void lock();
+  void unlock();
 
 public:
   Thread();
@@ -66,7 +64,7 @@ public:
    * @param arg argument of the thread
    * @return phread_create value return
    */
-  int start(void * arg = 0);
+  int start(void* arg = 0);
 
   /*!
    * Pause and resume,
@@ -91,7 +89,7 @@ public:
    *
    */
   virtual void kill();
-  
+
   /**
    * Dettach the thread
    */
@@ -107,113 +105,110 @@ public:
   Condition dead;
   void wait_dead();
 
-
 public:
-
   /* Attention, il ne faut pas imbriquer les sections critiques
    * l'utilisation de mutex récursifs résoudrait le problème mais ils sont buggués sur la mmnet
    */
 
-#define BEGIN_THREAD_SAFE			\
-  try						\
-    {						\
-  lock(); \
+#define BEGIN_THREAD_SAFE                                                                                              \
+  try                                                                                                                  \
+  {                                                                                                                    \
+    lock();
 
+#define BEGIN_SAFE(l)                                                                                                  \
+  try                                                                                                                  \
+  {                                                                                                                    \
+    l.lock();
 
-#define BEGIN_SAFE(l)							\
-  try									\
-  {									\
-    l.lock();								\
- 
-#define BEGIN_PSAFE(l)				\
-  try						\
-    {									\
-l->lock(); \
+#define BEGIN_PSAFE(l)                                                                                                 \
+  try                                                                                                                  \
+  {                                                                                                                    \
+    l->lock();
 
-#define END_THREAD_SAFE                                       \
-  unlock();                                                   \
-}                                                             \
-  catch (const string & str)                                  \
-  {                                                           \
-    unlock();                                                 \
-    throw str;                                                \
-  }                                                           \
-  catch(const std::runtime_error & e)                         \
-  {                                                           \
-    unlock();                                                 \
-    throw e;                                                  \
-  }                                                           \
-  catch(const std::logic_error & e)                           \
-  {                                                           \
-    unlock();                                                 \
-    throw e;                                                  \
-  }                                                           \
-  catch(const std::exception & str)                           \
-  {                                                           \
-    unlock();                                                 \
-    throw str;                                                \
-  }                                                           \
-  catch (...)                                                 \
-  {                                                           \
-    unlock();                                                 \
-    throw std::runtime_error("Unknown exception in thread");  \
+#define END_THREAD_SAFE                                                                                                \
+  unlock();                                                                                                            \
+  }                                                                                                                    \
+  catch (const string& str)                                                                                            \
+  {                                                                                                                    \
+    unlock();                                                                                                          \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (const std::runtime_error& e)                                                                                  \
+  {                                                                                                                    \
+    unlock();                                                                                                          \
+    throw e;                                                                                                           \
+  }                                                                                                                    \
+  catch (const std::logic_error& e)                                                                                    \
+  {                                                                                                                    \
+    unlock();                                                                                                          \
+    throw e;                                                                                                           \
+  }                                                                                                                    \
+  catch (const std::exception& str)                                                                                    \
+  {                                                                                                                    \
+    unlock();                                                                                                          \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (...)                                                                                                          \
+  {                                                                                                                    \
+    unlock();                                                                                                          \
+    throw std::runtime_error("Unknown exception in thread");                                                           \
   }
 
-#define END_SAFE(l)                                           \
-    l.unlock();                                               \
-  }                                                           \
-  catch(const std::runtime_error & str)                       \
-  {                                                           \
-    l.unlock();                                               \
-    throw str;                                                \
-  }                                                           \
-  catch(const std::logic_error & str)                         \
-  {                                                           \
-    l.unlock();                                               \
-    throw str;                                                \
-  }                                                           \
-  catch(const std::exception & str)                           \
-  {                                                           \
-    l.unlock();                                               \
-    throw str;                                                \
-  }                                                           \
-  catch(const string & str)                                   \
-  {                                                           \
-    l.unlock();                                               \
-    throw str;                                                \
-  }                                                           \
-  catch(...)                                                  \
-  {                                                           \
-    l.unlock();                                               \
-    throw std::runtime_error("Unknown exception in thread");  \
+#define END_SAFE(l)                                                                                                    \
+  l.unlock();                                                                                                          \
+  }                                                                                                                    \
+  catch (const std::runtime_error& str)                                                                                \
+  {                                                                                                                    \
+    l.unlock();                                                                                                        \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (const std::logic_error& str)                                                                                  \
+  {                                                                                                                    \
+    l.unlock();                                                                                                        \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (const std::exception& str)                                                                                    \
+  {                                                                                                                    \
+    l.unlock();                                                                                                        \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (const string& str)                                                                                            \
+  {                                                                                                                    \
+    l.unlock();                                                                                                        \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (...)                                                                                                          \
+  {                                                                                                                    \
+    l.unlock();                                                                                                        \
+    throw std::runtime_error("Unknown exception in thread");                                                           \
   }
 
-#define END_PSAFE(l)                                          \
-    l->unlock();                                              \
-  }                                                           \
-  catch (const std::runtime_error & str)                      \
-  {                                                           \
-    l->unlock();                                              \
-    throw str;                                                \
-  }                                                           \
-  catch (const std::logic_error & str)                        \
-  {                                                           \
-    l->unlock();                                              \
-    throw str;                                                \
-  }                                                           \
-  catch (const exception & e)                                 \
-  {                                                           \
-    l->unlock();                                              \
-    throw e;                                                  \
-  }                                                           \
-  catch (...)                                                 \
-  {                                                           \
-    l->unlock();                                              \
-    throw std::runtime_error("Unknown exception in thread");  \
+#define END_PSAFE(l)                                                                                                   \
+  l->unlock();                                                                                                         \
+  }                                                                                                                    \
+  catch (const std::runtime_error& str)                                                                                \
+  {                                                                                                                    \
+    l->unlock();                                                                                                       \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (const std::logic_error& str)                                                                                  \
+  {                                                                                                                    \
+    l->unlock();                                                                                                       \
+    throw str;                                                                                                         \
+  }                                                                                                                    \
+  catch (const exception& e)                                                                                           \
+  {                                                                                                                    \
+    l->unlock();                                                                                                       \
+    throw e;                                                                                                           \
+  }                                                                                                                    \
+  catch (...)                                                                                                          \
+  {                                                                                                                    \
+    l->unlock();                                                                                                       \
+    throw std::runtime_error("Unknown exception in thread");                                                           \
   }
 
   //		  cout << "Unlocking "<<  #l << endl;
-  
+
   /**
    * The id of the current thread
    */
@@ -222,16 +217,17 @@ l->lock(); \
   /*
    * The id of the thread executing this object
    */
-  int threadId(void){ return myId; }
+  int threadId(void)
+  {
+    return myId;
+  }
 
-
-    /**
-     @brief the common run of the thread
-  */
+  /**
+   @brief the common run of the thread
+*/
   void run(void);
 
 protected:
-
   int myId;
 
   /*!
@@ -246,10 +242,17 @@ protected:
    * then its state id Dead
    */
 
-  typedef enum {Unborn,Starting,Running,Suspended,KillMe,Dying,Dead} ThreadState;
+  typedef enum
+  {
+    Unborn,
+    Starting,
+    Running,
+    Suspended,
+    KillMe,
+    Dying,
+    Dead
+  } ThreadState;
   ThreadState thread_state;
-
-
 
   /**
    * starting point of the thread
@@ -257,7 +260,7 @@ protected:
    * @return NULL
    */
 #ifndef MSVC
-  static void * EntryPoint(void* pthis);
+  static void* EntryPoint(void* pthis);
 #else
   static DWORD WINAPI EntryPoint(LPVOID pthis);
 #endif
@@ -267,13 +270,12 @@ protected:
   virtual void setup(void);
 
   /**
-  * method to cleanup resources used by the thread when it stops or is killed
-  */
+   * method to cleanup resources used by the thread when it stops or is killed
+   */
   virtual void cleanup(void){};
 
   /* wait end of the thread */
   void wait(void);
-
 
   /*!
    * Signal handling
@@ -294,18 +296,16 @@ protected:
   void wait_for_resume(bool lock = false);
 
 #ifndef MSVC
-  pthread_t _Thread; ///< thread handle
+  pthread_t _Thread;  ///< thread handle
 #else
   HANDLE _Thread;
 #endif
-  void * _Arg; ///< arguments
+  void* _Arg;  ///< arguments
 
   Mutex pause_mutex;
 
-  //Usable to interthread calls safe
+  // Usable to interthread calls safe
   Mutex safe_mutex;
-
 };
 
-}
-
+}  // namespace rhoban_utils

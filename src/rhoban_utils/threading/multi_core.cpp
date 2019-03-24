@@ -4,7 +4,6 @@
 
 namespace rhoban_utils
 {
-
 MultiCore::Intervals MultiCore::buildIntervals(int nb_tasks, int nb_threads)
 {
   /// Do not create more threads than tasks
@@ -19,26 +18,24 @@ MultiCore::Intervals MultiCore::buildIntervals(int nb_tasks, int nb_threads)
   for (int i = 0; i < nb_big_intervals; i++)
   {
     int end = start + big_interval;
-    result.push_back(std::pair<int,int>(start, start + big_interval));
+    result.push_back(std::pair<int, int>(start, start + big_interval));
     start = end;
   }
   for (int i = 0; i < nb_threads - nb_big_intervals; i++)
   {
     int end = start + small_interval;
-    result.push_back(std::pair<int,int>(start, start + small_interval));
+    result.push_back(std::pair<int, int>(start, start + small_interval));
     start = end;
   }
   return result;
 }
 
-
-void MultiCore::runParallelTask(Task t,
-                                int nb_tasks,
-                                int nb_threads)
+void MultiCore::runParallelTask(Task t, int nb_tasks, int nb_threads)
 {
   // Specific case for one thread, just use current thread
-  if (nb_threads == 1) {
-    t(0,nb_tasks);
+  if (nb_threads == 1)
+  {
+    t(0, nb_tasks);
     return;
   }
   MultiCore::Intervals intervals = buildIntervals(nb_tasks, nb_threads);
@@ -48,7 +45,7 @@ void MultiCore::runParallelTask(Task t,
   {
     int start = intervals[thread_no].first;
     int end = intervals[thread_no].second;
-    threads.push_back(std::thread([t, start, end](){t(start,end);}));
+    threads.push_back(std::thread([t, start, end]() { t(start, end); }));
   }
   // Wait for all threads to finish
   for (size_t thread_no = 0; thread_no < intervals.size(); thread_no++)
@@ -57,14 +54,13 @@ void MultiCore::runParallelTask(Task t,
   }
 }
 
-void MultiCore::runParallelStochasticTask(StochasticTask st,
-                                          int nb_tasks,
-                                          int max_threads,
-                                          std::default_random_engine * engine)
+void MultiCore::runParallelStochasticTask(StochasticTask st, int nb_tasks, int max_threads,
+                                          std::default_random_engine* engine)
 {
   // How much threads will be really used
   int nb_threads = max_threads;
-  if (nb_tasks < max_threads) {
+  if (nb_tasks < max_threads)
+  {
     nb_threads = nb_tasks;
   }
   // Initializing engines
@@ -80,18 +76,18 @@ void MultiCore::runParallelStochasticTask(StochasticTask st,
   runParallelStochasticTask(st, nb_tasks, &engines);
 }
 
-
-void MultiCore::runParallelStochasticTask(StochasticTask st,
-                                          int nb_tasks,
-                                          std::vector<std::default_random_engine> * engines)
+void MultiCore::runParallelStochasticTask(StochasticTask st, int nb_tasks,
+                                          std::vector<std::default_random_engine>* engines)
 {
-  if (engines == nullptr || engines->size() == 0) {
+  if (engines == nullptr || engines->size() == 0)
+  {
     throw std::runtime_error("MultiCore::runParallelStochasticTask with no engines");
   }
   int nb_threads = engines->size();
   // Specific case for one thread, just use current thread
-  if (nb_threads == 1) {
-    st(0,nb_tasks, &((*engines)[0]));
+  if (nb_threads == 1)
+  {
+    st(0, nb_tasks, &((*engines)[0]));
     return;
   }
   MultiCore::Intervals intervals = buildIntervals(nb_tasks, nb_threads);
@@ -101,9 +97,8 @@ void MultiCore::runParallelStochasticTask(StochasticTask st,
   {
     int start = intervals[thread_no].first;
     int end = intervals[thread_no].second;
-    std::default_random_engine * thread_engine = &((*engines)[thread_no]);
-    threads.push_back(std::thread([st, start, end, thread_engine]()
-                                  {st(start, end, thread_engine);}));
+    std::default_random_engine* thread_engine = &((*engines)[thread_no]);
+    threads.push_back(std::thread([st, start, end, thread_engine]() { st(start, end, thread_engine); }));
   }
   // Wait for all threads to finish
   for (size_t thread_no = 0; thread_no < intervals.size(); thread_no++)
@@ -112,4 +107,4 @@ void MultiCore::runParallelStochasticTask(StochasticTask st,
   }
 }
 
-}
+}  // namespace rhoban_utils

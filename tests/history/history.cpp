@@ -75,7 +75,7 @@ TEST(history, loggingBasic)
   h.pushValue(3., 4.);
   std::ostringstream log;
   h.stopLogging(log);
-  EXPECT_EQ(std::string{"1 2\n3 4\n"}, log.str());
+  EXPECT_EQ(std::string{ "1 2\n3 4\n" }, log.str());
 }
 
 // Check that history values starting at 0 are properly logged.
@@ -89,7 +89,7 @@ TEST(history, DISABLED_loggingFromZero)
   std::ostringstream log;
   h.stopLogging(log);
   // FIXME: log.str() returns "";
-  EXPECT_EQ(std::string{"0 1\n2 3\n"}, log.str());
+  EXPECT_EQ(std::string{ "0 1\n2 3\n" }, log.str());
 }
 
 // Check numbers interpolation
@@ -145,7 +145,7 @@ TEST(history, interpolationInvalidValueType)
 TEST(history, loadReplay)
 {
   History h;
-  std::istringstream is{"1 2\n3 4\n"};
+  std::istringstream is{ "1 2\n3 4\n" };
   h.loadReplay(is);
   EXPECT_DOUBLE_EQ(h.front().first, 1.);
   EXPECT_DOUBLE_EQ(h.front().second, 2.);
@@ -157,7 +157,7 @@ TEST(history, loadReplay)
 TEST(history, loadReplayTimeShift)
 {
   History h;
-  std::istringstream is{"1 2\n3 4\n"};
+  std::istringstream is{ "1 2\n3 4\n" };
   h.loadReplay(is, false, 1.0);
   EXPECT_DOUBLE_EQ(2., h.front().first);
   EXPECT_DOUBLE_EQ(2., h.front().second);
@@ -169,7 +169,7 @@ TEST(history, loadReplayTimeShift)
 TEST(history, loadReplayComment)
 {
   History h;
-  std::istringstream is{"1 2\n#comment\n3 4\n"};
+  std::istringstream is{ "1 2\n#comment\n3 4\n" };
   // Comment detection must stop loading process.
   h.loadReplay(is);
   EXPECT_DOUBLE_EQ(1., h.front().first);
@@ -182,7 +182,7 @@ TEST(history, loadReplayComment)
 TEST(history, loadReplayDecreasing)
 {
   History h;
-  std::istringstream is{"3 2\n1 4\n"};
+  std::istringstream is{ "3 2\n1 4\n" };
   ASSERT_THROW(h.loadReplay(is), std::runtime_error);
 }
 
@@ -198,7 +198,7 @@ TEST(history, binary)
   h1.stopLogging(log, true);
 
   History h2;
-  std::istringstream is{log.str()};
+  std::istringstream is{ log.str() };
   h2.loadReplay(is, true);
   EXPECT_DOUBLE_EQ(h2.front().first, 1.);
   EXPECT_DOUBLE_EQ(h2.front().second, 2.);
@@ -206,7 +206,7 @@ TEST(history, binary)
   EXPECT_DOUBLE_EQ(h2.back().second, 4.);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

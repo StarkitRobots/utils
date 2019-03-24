@@ -24,7 +24,8 @@ class Condition;
 
 class Mutex
 {
-	friend class Condition;
+  friend class Condition;
+
 public:
   Mutex(void);
   virtual ~Mutex(void);
@@ -35,8 +36,7 @@ protected:
 #ifndef MSVC
   pthread_mutex_t _mutex;
 #else
-	CRITICAL_SECTION _mutex;
+  CRITICAL_SECTION _mutex;
 #endif
 };
-}
-
+}  // namespace rhoban_utils

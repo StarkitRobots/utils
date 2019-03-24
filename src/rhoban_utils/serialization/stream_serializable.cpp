@@ -9,8 +9,7 @@
 
 namespace rhoban_utils
 {
-
-int StreamSerializable::write(std::ostream & out) const
+int StreamSerializable::write(std::ostream& out) const
 {
   int bytes_written = 0;
   bytes_written += rhoban_utils::write<int>(out, getClassID());
@@ -18,10 +17,11 @@ int StreamSerializable::write(std::ostream & out) const
   return bytes_written;
 }
 
-int StreamSerializable::save(const std::string & filename, bool write_class_id) const
+int StreamSerializable::save(const std::string& filename, bool write_class_id) const
 {
   std::ofstream out(filename, std::ios::binary);
-  if (!out) {
+  if (!out)
+  {
     std::ostringstream oss;
     oss << "Failed to open '" << filename << "' for binary writing";
     throw std::runtime_error(oss.str());
@@ -35,10 +35,11 @@ int StreamSerializable::save(const std::string & filename, bool write_class_id) 
   return bytes_written;
 }
 
-void StreamSerializable::load(const std::string & path)
+void StreamSerializable::load(const std::string& path)
 {
   std::ifstream in(path, std::ios::binary);
-  if (!in) {
+  if (!in)
+  {
     std::ostringstream oss;
     oss << "Failed to open '" << path << "' for binary writing";
     throw std::runtime_error(oss.str());
@@ -46,4 +47,4 @@ void StreamSerializable::load(const std::string & path)
   read(in);
 }
 
-}
+}  // namespace rhoban_utils

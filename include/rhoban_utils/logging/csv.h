@@ -8,25 +8,25 @@
 
 namespace rhoban_utils
 {
-    class CSV
-    {
-        public:
-            CSV();
+class CSV
+{
+public:
+  CSV();
 
-            void open(std::string);
-            void push(std::string column, double value);
-            void newLine();
-            void close();
+  void open(std::string);
+  void push(std::string column, double value);
+  void newLine();
+  void close();
 
-        protected:
-            std::ofstream ofs;
-            bool header;
-            std::map<std::string, int> columns;
-            std::map<int, std::string> columnIndexes;
-            std::map<int, double> values;
+protected:
+  std::ofstream ofs;
+  bool header;
+  std::map<std::string, int> columns;
+  std::map<int, std::string> columnIndexes;
+  std::map<int, double> values;
 
-            void produceHeader();
-    };
-}
+  void produceHeader();
+};
+}  // namespace rhoban_utils
 
 #endif

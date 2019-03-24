@@ -26,72 +26,78 @@
 
 namespace rhoban_utils
 {
-
-
 /*!\brief compute tv0-tv1 and put it into dtv */
-void compute_tv_diff(const t_chrono *tv0,
-		     const t_chrono *tv1,
-		     t_chrono *dtv) {
-  if (tv0->tv_sec == tv1->tv_sec) {
+void compute_tv_diff(const t_chrono* tv0, const t_chrono* tv1, t_chrono* dtv)
+{
+  if (tv0->tv_sec == tv1->tv_sec)
+  {
     dtv->tv_sec = 0;
     dtv->tv_usec = tv0->tv_usec - tv1->tv_usec;
   }
-  else {
-    long int usec_diff;    
+  else
+  {
+    long int usec_diff;
     dtv->tv_sec = tv0->tv_sec - tv1->tv_sec - 1;
     usec_diff = tv0->tv_usec + (1000000 - tv1->tv_usec);
-    if (usec_diff > 1000000) {
+    if (usec_diff > 1000000)
+    {
       dtv->tv_sec = dtv->tv_sec + 1;
-      dtv->tv_usec = usec_diff - 1000000;      
+      dtv->tv_usec = usec_diff - 1000000;
     }
     else
-      dtv->tv_usec = usec_diff;      
+      dtv->tv_usec = usec_diff;
   }
 }
 
 #ifdef MSVC
-int gettimeofday (t_chrono *tp, void *tz)
+int gettimeofday(t_chrono* tp, void* tz)
 {
-struct _timeb timebuffer;
-	_ftime64_s (&timebuffer);
-	tp->tv_sec = timebuffer.time;
-	tp->tv_usec = timebuffer.millitm * 1000;
-return 0;
+  struct _timeb timebuffer;
+  _ftime64_s(&timebuffer);
+  tp->tv_sec = timebuffer.time;
+  tp->tv_usec = timebuffer.millitm * 1000;
+  return 0;
 }
 
 #endif
 
-t_chrono * chrono_create() {
-  t_chrono * chr = (t_chrono*) malloc(sizeof(t_chrono));
+t_chrono* chrono_create()
+{
+  t_chrono* chr = (t_chrono*)malloc(sizeof(t_chrono));
   chrono_reset(chr);
   return chr;
 }
 
-void chrono_reset(t_chrono * chr) {
-  gettimeofday(chr,NULL);
+void chrono_reset(t_chrono* chr)
+{
+  gettimeofday(chr, NULL);
 }
 
-void delete_chrono(t_chrono * chr) {
+void delete_chrono(t_chrono* chr)
+{
   free(chr);
 }
 
-long int chrono_sec(const t_chrono * chr) {
+long int chrono_sec(const t_chrono* chr)
+{
   t_chrono tv, tv_diff;
-  gettimeofday(&tv,NULL);
+  gettimeofday(&tv, NULL);
   compute_tv_diff(&tv, chr, &tv_diff);
   return tv_diff.tv_sec;
 }
 
-long int chrono_msec(const t_chrono * chr) {
+long int chrono_msec(const t_chrono* chr)
+{
   t_chrono tv, tv_diff;
-  gettimeofday(&tv,NULL);
+  gettimeofday(&tv, NULL);
   compute_tv_diff(&tv, chr, &tv_diff);
   return tv_diff.tv_sec * 1000 + tv_diff.tv_usec / 1000;
 }
 
-long int chrono_usec(const t_chrono * chr) {
+long int chrono_usec(const t_chrono* chr)
+{
   t_chrono tv, tv_diff;
-  gettimeofday(&tv,NULL);
+  gettimeofday(&tv, NULL);
   compute_tv_diff(&tv, chr, &tv_diff);
   return tv_diff.tv_sec * 1000000 + tv_diff.tv_usec;
 }
@@ -101,28 +107,27 @@ long int chrono_usec(const t_chrono * chr) {
 
 Chrono::Chrono()
 {
-    reset();
+  reset();
 }
-        
+
 double Chrono::getTime() const
 {
-    return chrono_usec(&chr)*0.000001;
+  return chrono_usec(&chr) * 0.000001;
 }
 
 long Chrono::getTimeUsec() const
 {
-	return chrono_usec(&chr);
+  return chrono_usec(&chr);
 }
 
 long Chrono::getTimeMsec() const
 {
-	return chrono_msec(&chr);
+  return chrono_msec(&chr);
 }
-
 
 void Chrono::reset()
 {
-    chrono_reset(&chr);
+  chrono_reset(&chr);
 }
 
-}
+}  // namespace rhoban_utils

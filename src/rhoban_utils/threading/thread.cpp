@@ -23,75 +23,74 @@ using namespace std;
 
 namespace rhoban_utils
 {
-
 Thread::Thread()
 {
-    thread_state = Unborn;
+  thread_state = Unborn;
 #ifndef WIN32
-    _Thread = 0;
+  _Thread = 0;
 #else
 #ifndef MSVC
-    _Thread.p =0;
+  _Thread.p = 0;
 #endif
 #endif
 }
 
 Thread::~Thread()
 {
-    try
+  try
+  {
+    if (thread_state != Dead)
     {
-        if(thread_state != Dead)
-        {
-	  kill();
-	}
-        thread_state = Dead;
+      kill();
     }
-    catch(std::exception & err)
-    {
-        cerr << "Exception '"<<err.what()<<"' when killing thread "<< this<<endl;
-    }
-    catch(char * err)
-    {
-        cerr << "Exception '"<<err<<"' when killing thread "<< this<<endl;
-    }
-    catch (const std::string & str)
-    {
-      cerr << "Exception '"<< str <<"' when killing thread "<< this<<endl;
-    }
-    catch(...)
-    {
-        cerr << "Exception when killing thread "<< this<<endl;
-    };
+    thread_state = Dead;
+  }
+  catch (std::exception& err)
+  {
+    cerr << "Exception '" << err.what() << "' when killing thread " << this << endl;
+  }
+  catch (char* err)
+  {
+    cerr << "Exception '" << err << "' when killing thread " << this << endl;
+  }
+  catch (const std::string& str)
+  {
+    cerr << "Exception '" << str << "' when killing thread " << this << endl;
+  }
+  catch (...)
+  {
+    cerr << "Exception when killing thread " << this << endl;
+  };
 }
 
 void Thread::detach()
 {
 #ifndef MSVC
-    pthread_detach(_Thread);
+  pthread_detach(_Thread);
 #endif
 }
 
-int Thread::start(void * arg)
+int Thread::start(void* arg)
 {
-    thread_state = Starting;
-    _Arg = arg; 
+  thread_state = Starting;
+  _Arg = arg;
 #ifndef MSVC
-    int code = pthread_create(&_Thread, NULL, Thread::EntryPoint, this);
+  int code = pthread_create(&_Thread, NULL, Thread::EntryPoint, this);
 
-    if (code != 0) {
-        perror("pthread");
-    }
-    return code;
+  if (code != 0)
+  {
+    perror("pthread");
+  }
+  return code;
 #else
-	DWORD id;
-	_Thread = CreateThread( 
-            NULL,                   // default security attributes
-            0,                      // use default stack size  
-			Thread::EntryPoint,          // argument to thread function ,
-			this,
-            0,                      // use default creation flags 
-            &id);   // returns the thread identifier 
-	return 0;
+  DWORD id;
+  _Thread = CreateThread(NULL,                // default security attributes
+                         0,                   // use default stack size
+                         Thread::EntryPoint,  // argument to thread function ,
+                         this,
+                         0,     // use default creation flags
+                         &id);  // returns the thread identifier
+  return 0;
 #endif
 }
 
@@ -101,16 +100,16 @@ int Thread::start(void * arg)
  */
 void Thread::suspend_thread()
 {
-    wait_started();
-    thread_state = Suspended;
-    pause_mutex.lock();
+  wait_started();
+  thread_state = Suspended;
+  pause_mutex.lock();
 }
 
 void Thread::resume_thread()
 {
-    wait_started();
-    pause_mutex.unlock();
-    thread_state = Running;
+  wait_started();
+  pause_mutex.unlock();
+  thread_state = Running;
 }
 
 /*!
@@ -118,25 +117,25 @@ void Thread::resume_thread()
  */
 bool Thread::is_suspended()
 {
-    wait_started();
-    return thread_state==Suspended;
+  wait_started();
+  return thread_state == Suspended;
 }
 
 bool Thread::is_running()
 {
-    wait_started();
-    return thread_state==Running;
+  wait_started();
+  return thread_state == Running;
 }
 
 bool Thread::is_dead()
 {
-    wait_started();
-    return thread_state==Dead;
+  wait_started();
+  return thread_state == Dead;
 }
 
 bool Thread::is_alive()
 {
-    return thread_state!=Dead && thread_state != Unborn && thread_state != Dying;
+  return thread_state != Dead && thread_state != Unborn && thread_state != Dying;
 }
 
 /*!
@@ -148,134 +147,140 @@ bool Thread::is_alive()
  */
 void Thread::wait_for_resume(bool lock)
 {
-    wait_started();
-    pause_mutex.lock();
-    if(!lock) {
-        pause_mutex.unlock();
-    }
+  wait_started();
+  pause_mutex.lock();
+  if (!lock)
+  {
+    pause_mutex.unlock();
+  }
 
-    if(thread_state == Suspended) {
-        thread_state = Running;
-    }
+  if (thread_state == Suspended)
+  {
+    thread_state = Running;
+  }
 }
-
 
 void Thread::kill(void)
 {
-	    if(!is_alive()) return;
-    wait_started();
-    thread_state = Dying;
+  if (!is_alive())
+    return;
+  wait_started();
+  thread_state = Dying;
 
 #ifndef MSVC
 #ifndef WIN32
-    if(_Thread)
+  if (_Thread)
 #else
-        if(_Thread.p)
+  if (_Thread.p)
 #endif
-        {
-            pthread_cancel(_Thread);
-            pthread_join(_Thread, NULL);
+  {
+    pthread_cancel(_Thread);
+    pthread_join(_Thread, NULL);
 #ifndef WIN32
-            _Thread=0;
+    _Thread = 0;
 #else
-            _Thread.p=0;
+    _Thread.p = 0;
 #endif
-		}
+  }
 #else
-	TerminateThread(_Thread,0);
+  TerminateThread(_Thread, 0);
 #endif
 
-	dead.lock();
-	dead.broadcast();
-	thread_state = Dead;
-	dead.unlock();
-  
+  dead.lock();
+  dead.broadcast();
+  thread_state = Dead;
+  dead.unlock();
 }
 
 int Thread::currentThreadId(void)
 {
 #ifdef WIN32
 #ifndef MSVC
-	return (int) pthread_self().p;
+  return (int)pthread_self().p;
 #else
-	return GetCurrentThreadId();
+  return GetCurrentThreadId();
 #endif
 #else
-	return (long int) pthread_self();
+  return (long int)pthread_self();
 #endif
 }
 
 void Thread::run(void)
 {
-    stringstream ss;
-    ss << currentThreadId();
-    thread_name = ss.str();
+  stringstream ss;
+  ss << currentThreadId();
+  thread_name = ss.str();
 
-    myId = currentThreadId();
+  myId = currentThreadId();
 
-    try {
-        started.lock();
-        setup();
-        thread_state = Running;
-        started.broadcast();
-        started.unlock();
+  try
+  {
+    started.lock();
+    setup();
+    thread_state = Running;
+    started.broadcast();
+    started.unlock();
 
-        execute();
-}
-    catch(std::exception & err) 
-{
-        cerr<<"Exception "<< err.what() << std::endl;
-    } catch (int code) {
-        cerr<<"Exception "<< code << std::endl;
-    } catch (const std::string & str) {
-      cerr << "Exception in thread " << thread_name <<" :"<< str << endl;
-    }
+    execute();
+  }
+  catch (std::exception& err)
+  {
+    cerr << "Exception " << err.what() << std::endl;
+  }
+  catch (int code)
+  {
+    cerr << "Exception " << code << std::endl;
+  }
+  catch (const std::string& str)
+  {
+    cerr << "Exception in thread " << thread_name << " :" << str << endl;
+  }
 
-	cleanup();
+  cleanup();
 
-	dead.lock();
-	dead.broadcast();
-	thread_state = Dead;
-	dead.unlock();
+  dead.lock();
+  dead.broadcast();
+  thread_state = Dead;
+  dead.unlock();
 }
 
 #ifndef MSVC
- void * Thread::EntryPoint(void* pthis)
+void* Thread::EntryPoint(void* pthis)
 {
-    Thread *pt = (Thread*)pthis;
-    int s = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+  Thread* pt = (Thread*)pthis;
+  int s = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
-    if (s != 0) {
-        string err = "pthread_setcancelstate error";
-        cerr << err;
-        throw err;
-    }
+  if (s != 0)
+  {
+    string err = "pthread_setcancelstate error";
+    cerr << err;
+    throw err;
+  }
 
-    s = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+  s = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-    if (s != 0) {
-        string err = "pthread_setcanceltype error";
-        cerr << err;
-        throw err;
-    }
+  if (s != 0)
+  {
+    string err = "pthread_setcanceltype error";
+    cerr << err;
+    throw err;
+  }
 
- #else
- DWORD Thread::EntryPoint(LPVOID pthis)
-	 {
-
-    Thread *pt = (Thread*)pthis;
+#else
+DWORD Thread::EntryPoint(LPVOID pthis)
+{
+  Thread* pt = (Thread*)pthis;
 
 #endif
 
-	    pt->run();
+  pt->run();
 
 #ifdef MSVC
-		ExitThread(0);
+  ExitThread(0);
 #endif
 
-    return NULL;
+  return NULL;
 }
-
 
 void Thread::setup(void)
 {
@@ -287,38 +292,38 @@ void Thread::setup(void)
 void Thread::wait_started()
 {
 #ifdef WIN32
-	started.lock();
-	if(thread_state == Unborn || thread_state == Starting)
-		started.wait();
-	started.unlock();
+  started.lock();
+  if (thread_state == Unborn || thread_state == Starting)
+    started.wait();
+  started.unlock();
 #else
-	while (thread_state == Unborn || thread_state == Starting)
-	  usleep(1000);
+  while (thread_state == Unborn || thread_state == Starting)
+    usleep(1000);
 #endif
 }
 
 void Thread::wait_dead()
 {
-	dead.lock();
-	dead.wait();
-	dead.unlock();
+  dead.lock();
+  dead.wait();
+  dead.unlock();
 }
 
 void Thread::lock()
 {
-    safe_mutex.lock();
+  safe_mutex.lock();
 }
 void Thread::unlock()
 {
-    safe_mutex.unlock();
+  safe_mutex.unlock();
 }
 
 void Thread::wait(void)
 {
 #ifndef MSVC
-    pthread_join (_Thread, NULL);
+  pthread_join(_Thread, NULL);
 #else
-	wait_dead();
+  wait_dead();
 #endif
 }
 
@@ -328,26 +333,25 @@ void Thread::wait(void)
 void Thread::block_signal(int signal)
 {
 #ifndef WIN32
-    sigset_t signal_mask;
-    sigemptyset (&signal_mask);
-    sigaddset (&signal_mask, signal);
-//    intt ret = sigprocmask(SIG_BLOCK,&signal_mask,NULL);
-   int ret =  pthread_sigmask(SIG_BLOCK, &signal_mask, NULL);
-	if (ret == -1)
-		throw runtime_error("Failed to set signal mask");
+  sigset_t signal_mask;
+  sigemptyset(&signal_mask);
+  sigaddset(&signal_mask, signal);
+  //    intt ret = sigprocmask(SIG_BLOCK,&signal_mask,NULL);
+  int ret = pthread_sigmask(SIG_BLOCK, &signal_mask, NULL);
+  if (ret == -1)
+    throw runtime_error("Failed to set signal mask");
 #endif
 }
 
 void Thread::wait_signal(int signal)
 {
 #ifndef WIN32
-    sigset_t signal_mask;
-    sigemptyset (&signal_mask);
-    sigaddset (&signal_mask, signal);
-    int sig;
-    sigwait(&signal_mask,&sig);
+  sigset_t signal_mask;
+  sigemptyset(&signal_mask);
+  sigaddset(&signal_mask, signal);
+  int sig;
+  sigwait(&signal_mask, &sig);
 #endif
 }
 
-
-}
+}  // namespace rhoban_utils

@@ -2,20 +2,25 @@
 
 using namespace rhoban_utils;
 
-class Children : public JsonSerializable {
+class Children : public JsonSerializable
+{
 public:
-  Children() : int_value(0), double_value(1.0){}
-
-  std::string getClassName() const { return "Children";};
-
-  void fromJson(const Json::Value & json_value,
-		const std::string & dir_name) override
+  Children() : int_value(0), double_value(1.0)
   {
-    (void) dir_name;
-    int_value    = rhoban_utils::read<int>(json_value, "int_value");
-    double_value = rhoban_utils::read<double>(json_value,"double_value");
   }
-  
+
+  std::string getClassName() const
+  {
+    return "Children";
+  };
+
+  void fromJson(const Json::Value& json_value, const std::string& dir_name) override
+  {
+    (void)dir_name;
+    int_value = rhoban_utils::read<int>(json_value, "int_value");
+    double_value = rhoban_utils::read<double>(json_value, "double_value");
+  }
+
   Json::Value toJson() const override
   {
     Json::Value v(Json::ValueType::objectValue);
@@ -23,23 +28,28 @@ public:
     v["double_value"] = double_value;
     return v;
   }
-  
+
   int int_value;
   double double_value;
 };
 
-class Mother : public JsonSerializable {
+class Mother : public JsonSerializable
+{
 public:
-  Mother() {}
+  Mother()
+  {
+  }
 
-  std::string getClassName() const { return "Mother";};
+  std::string getClassName() const
+  {
+    return "Mother";
+  };
 
-  void fromJson(const Json::Value & json_value,
-                const std::string & dir_name) override
+  void fromJson(const Json::Value& json_value, const std::string& dir_name) override
   {
     (void)dir_name;
-    s_value = rhoban_utils::read<std::string>(json_value,"s_value");
-    c.read(json_value,"children");
+    s_value = rhoban_utils::read<std::string>(json_value, "s_value");
+    c.read(json_value, "children");
   }
 
   Json::Value toJson() const override

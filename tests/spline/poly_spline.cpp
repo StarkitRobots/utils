@@ -105,7 +105,7 @@ TEST(splinePolySpline, points)
   EXPECT_DOUBLE_EQ(0.1, pts[2].delta);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

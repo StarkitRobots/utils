@@ -25,8 +25,8 @@ TEST(testControl, testControlUpdate)
   ASSERT_EQ(c.output, c.max);
 }
 
-//TODO: Better test. Complex cases.
-int main(int argc, char **argv)
+// TODO: Better test. Complex cases.
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

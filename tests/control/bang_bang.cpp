@@ -93,8 +93,8 @@ TEST(testBangBang, getPositionZero)
   EXPECT_EQ(src, bb.getPosition(src, dst, 0.0));
 }
 
-//TODO: Better test. Complex cases.
-int main(int argc, char **argv)
+// TODO: Better test. Complex cases.
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

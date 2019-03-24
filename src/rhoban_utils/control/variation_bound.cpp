@@ -2,33 +2,38 @@
 
 namespace rhoban_utils
 {
-
-void VariationBound::update(double &output, double target, double limit, double dt)
+void VariationBound::update(double& output, double target, double limit, double dt)
 {
-    double maxVariation = limit*dt;
-    double delta = target-output;
+  double maxVariation = limit * dt;
+  double delta = target - output;
 
-    if (delta > maxVariation) {
-        delta = maxVariation;
-    } else if (delta < -maxVariation) {
-        delta = -maxVariation;
-    }
+  if (delta > maxVariation)
+  {
+    delta = maxVariation;
+  }
+  else if (delta < -maxVariation)
+  {
+    delta = -maxVariation;
+  }
 
-    output += delta;
+  output += delta;
 }
 
-void VariationBound::update(float &output, float target, float limit, float dt)
+void VariationBound::update(float& output, float target, float limit, float dt)
 {
-    float maxVariation = limit*dt;
-    float delta = target-output;
+  float maxVariation = limit * dt;
+  float delta = target - output;
 
-    if (delta > maxVariation) {
-        delta = maxVariation;
-    } else if (delta < -maxVariation) {
-        delta = -maxVariation;
-    }
+  if (delta > maxVariation)
+  {
+    delta = maxVariation;
+  }
+  else if (delta < -maxVariation)
+  {
+    delta = -maxVariation;
+  }
 
-    output += delta;
+  output += delta;
 }
 
-}
+}  // namespace rhoban_utils
