@@ -7,14 +7,14 @@ using namespace rhoban_utils;
 // sane properties.
 TEST(history, instantiate)
 {
-  History h;
+  HistoryDouble h;
   EXPECT_EQ(0, h.size());
 }
 
 // Check a range of timestamps/values to push in the history.
 TEST(history, addIncrementingTimestamps)
 {
-  History h;
+  HistoryDouble h;
   h.pushValue(3., 1.);
   EXPECT_EQ(1, h.size());
   h.pushValue(3.2, 3.);
@@ -28,7 +28,7 @@ TEST(history, addIncrementingTimestamps)
 // Violate the condition of incrementing the timestamp
 TEST(history, addDecrementingTimeStamps)
 {
-  History h;
+  HistoryDouble h;
   h.pushValue(3., 1.);
   ASSERT_THROW(h.pushValue(2., 33.), std::logic_error);
 }
@@ -36,7 +36,7 @@ TEST(history, addDecrementingTimeStamps)
 // Check that putting the same timestamp is harmless.
 TEST(history, addSameTimestamp)
 {
-  History h;
+  HistoryDouble h;
   h.pushValue(4.2, 3.);
   h.pushValue(4.2, 4.);
   EXPECT_EQ(1, h.size());
@@ -46,7 +46,7 @@ TEST(history, addSameTimestamp)
 // Check that behavior of front and back methods are consistent.
 TEST(history, checkFrontBack)
 {
-  History h;
+  HistoryDouble h;
   h.pushValue(1., 0.);
   EXPECT_DOUBLE_EQ(1., h.front().first);
   EXPECT_DOUBLE_EQ(1., h.back().first);
@@ -69,7 +69,7 @@ TEST(history, checkFrontBack)
 // Check that casual history values are properly logged.
 TEST(history, loggingBasic)
 {
-  History h;
+  HistoryDouble h;
   h.startLogging();
   h.pushValue(1., 2.);
   h.pushValue(3., 4.);
@@ -80,9 +80,9 @@ TEST(history, loggingBasic)
 
 // Check that history values starting at 0 are properly logged.
 // TODO: Re-enable this test when the issue is fixed
-TEST(history, DISABLED_loggingFromZero)
+TEST(history, loggingFromZero)
 {
-  History h;
+  HistoryDouble h;
   h.startLogging();
   h.pushValue(0., 1.);
   h.pushValue(2., 3.);
@@ -95,7 +95,7 @@ TEST(history, DISABLED_loggingFromZero)
 // Check numbers interpolation
 TEST(history, interpolationNumber)
 {
-  History h(8.);
+  HistoryDouble h(8.);
   h.pushValue(1., 2.);
   h.pushValue(3., 4.);
   h.pushValue(5., 12.);
@@ -109,42 +109,32 @@ TEST(history, interpolationNumber)
 // Check angles interpolation
 TEST(history, interpolationAngleRad)
 {
-  History h(8.);
+  HistoryAngle h(8.);
   h.pushValue(1., 2.);
   h.pushValue(3., 4.);
   h.pushValue(5., 12.);
-  EXPECT_DOUBLE_EQ(3., h.interpolate(2., History::AngleRad));
-  EXPECT_DOUBLE_EQ(-2.6215653753294101, h.interpolate(2.5, History::AngleRad));
-  EXPECT_DOUBLE_EQ(-1.9495462246455295, h.interpolate(3.5, History::AngleRad));
-  EXPECT_DOUBLE_EQ(-1.4247779607693793, h.interpolate(4., History::AngleRad));
-  EXPECT_DOUBLE_EQ(-0.90000969689322929, h.interpolate(4.5, History::AngleRad));
+  EXPECT_DOUBLE_EQ(3., h.interpolate(2.));
+  EXPECT_DOUBLE_EQ(-2.6215653753294101, h.interpolate(2.5));
+  EXPECT_DOUBLE_EQ(-1.9495462246455295, h.interpolate(3.5));
+  EXPECT_DOUBLE_EQ(-1.4247779607693793, h.interpolate(4.));
+  EXPECT_DOUBLE_EQ(-0.90000969689322929, h.interpolate(4.5));
 }
 
 // Check that interpolation handles timestamp outside of the range of
 // stored ones.
 TEST(history, interpolationLimits)
 {
-  History h;
+  HistoryDouble h;
   EXPECT_NO_THROW(h.interpolate(0.5));
   h.pushValue(1., 2.);
   h.pushValue(3., 4.);
   EXPECT_NO_THROW(h.interpolate(3.5));
 }
 
-// Check that invalid valueType argument actually throws.
-TEST(history, interpolationInvalidValueType)
-{
-  History h(3.);
-  h.pushValue(1., 2.);
-  h.pushValue(3., 4.);
-  EXPECT_THROW(h.interpolate(2., History::ValueType(-1)), std::logic_error);
-  EXPECT_THROW(h.interpolate(2., History::ValueType(2)), std::logic_error);
-}
-
 // Check loadReplay with basic scenario.
 TEST(history, loadReplay)
 {
-  History h;
+  HistoryDouble h;
   std::istringstream is{ "1 2\n3 4\n" };
   h.loadReplay(is);
   EXPECT_DOUBLE_EQ(h.front().first, 1.);
@@ -156,7 +146,7 @@ TEST(history, loadReplay)
 // Check loadReplay with timeshift argument.
 TEST(history, loadReplayTimeShift)
 {
-  History h;
+  HistoryDouble h;
   std::istringstream is{ "1 2\n3 4\n" };
   h.loadReplay(is, false, 1.0);
   EXPECT_DOUBLE_EQ(2., h.front().first);
@@ -168,7 +158,7 @@ TEST(history, loadReplayTimeShift)
 // Check loadReplay when the input contains a comment.
 TEST(history, loadReplayComment)
 {
-  History h;
+  HistoryDouble h;
   std::istringstream is{ "1 2\n#comment\n3 4\n" };
   // Comment detection must stop loading process.
   h.loadReplay(is);
@@ -181,7 +171,7 @@ TEST(history, loadReplayComment)
 // loadReplay with decreasing timestamps
 TEST(history, loadReplayDecreasing)
 {
-  History h;
+  HistoryDouble h;
   std::istringstream is{ "3 2\n1 4\n" };
   ASSERT_THROW(h.loadReplay(is), std::runtime_error);
 }
@@ -190,14 +180,14 @@ TEST(history, loadReplayDecreasing)
 // replayed.
 TEST(history, binary)
 {
-  History h1;
+  HistoryDouble h1;
   h1.startLogging();
   h1.pushValue(1., 2.);
   h1.pushValue(3., 4.);
   std::ostringstream log;
   h1.stopLogging(log, true);
 
-  History h2;
+  HistoryDouble h2;
   std::istringstream is{ log.str() };
   h2.loadReplay(is, true);
   EXPECT_DOUBLE_EQ(h2.front().first, 1.);
