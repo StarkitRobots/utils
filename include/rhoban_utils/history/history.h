@@ -14,6 +14,20 @@
 
 namespace rhoban_utils
 {
+class HistoryBase
+{
+public:
+  virtual void setWindowSize(double window) = 0;
+  virtual size_t size() const = 0;
+  virtual void startLogging() = 0;
+  virtual void stopLogging(std::ostream& os, bool binary = false) = 0;
+  virtual void startNamedLog(const std::string& sessionName) = 0;
+  virtual void freezeNamedLog(const std::string& sessionName) = 0;
+  virtual void closeFrozenLog(const std::string& sessionName, std::ostream& os) = 0;
+  virtual void loadReplay(std::istream& is, bool binary = false, double timeShift = 0.0) = 0;
+  virtual void clear() = 0;
+};
+
 /**
  * History
  *
@@ -21,7 +35,7 @@ namespace rhoban_utils
  * interpole them back in the past.
  */
 template <typename T>
-class History
+class History : public HistoryBase
 {
 public:
   typedef std::pair<double, T> TimedValue;
@@ -37,7 +51,7 @@ public:
    * This is used to abstract writing/reading data from and to a log stream
    */
   virtual TimedValue readValueFromStream(std::istream& is, bool binary = false) = 0;
-  virtual void writeValueToStream(const TimedValue &value, std::ostream& os, bool binary = false) = 0;
+  virtual void writeValueToStream(const TimedValue& value, std::ostream& os, bool binary = false) = 0;
 
   /**
    * Sets the history window size
@@ -131,7 +145,7 @@ public:
    * linear interpolated value associated with
    * given timestamp
    */
-  virtual double interpolate(double timestamp) const
+  virtual T interpolate(double timestamp) const
   {
     // Lock
     _mutex.lock();
@@ -328,7 +342,7 @@ public:
           _mutex.unlock();
           return;
         }
-        
+
         newValue = readValueFromStream(is, true);
         size--;
       }
@@ -431,21 +445,67 @@ private:
 
 class HistoryDouble : public History<double>
 {
-  public:
-
+public:
   HistoryDouble(double window = 2.0);
 
   TimedValue readValueFromStream(std::istream& is, bool binary = false);
-  void writeValueToStream(const TimedValue &value, std::ostream& os, bool binary = false);
+  void writeValueToStream(const TimedValue& value, std::ostream& os, bool binary = false);
 };
 
 class HistoryAngle : public HistoryDouble
 {
-  public:
-
+public:
   HistoryAngle(double window = 2.0);
 
   double doInterpolate(double valLow, double wLow, double valHigh, double wHigh) const;
+};
+
+class HistoryCollection : public std::map<std::string, HistoryBase*>
+{
+public:
+  template <typename T>
+  T* get(std::string name)
+  {
+    if (!_histories.count(name))
+    {
+      T* h = new T();
+      _histories[name] = h;
+    }
+
+    T* h = dynamic_cast<T*>(_histories[name]);
+    if (h == nullptr)
+    {
+      std::ostringstream os;
+      os << "Asking for history of bad type (" << name << ")";
+      throw std::logic_error(os.str());
+    }
+
+    return h;
+  }
+
+  HistoryDouble* getDouble(std::string name)
+  {
+    return get<HistoryDouble>(name);
+  }
+
+  HistoryAngle* getAngle(std::string name)
+  {
+    return get<HistoryAngle>(name);
+  }
+
+  /**
+   * Start and stop (save) a named log session
+   */
+  void startNamedLog(const std::string& filePath);
+  void stopNamedLog(const std::string& filePath);
+
+  /**
+   *  Load the replays from a given file stream
+   */
+  void loadReplays(const std::string& filePath);
+
+protected:
+  std::map<std::string, HistoryBase *> _histories;
 };
 
 }  // namespace rhoban_utils
