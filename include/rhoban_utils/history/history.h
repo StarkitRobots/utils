@@ -10,6 +10,7 @@
 #include <iostream>
 #include <ostream>
 #include <fstream>
+#include <Eigen/Geometry>
 #include "rhoban_utils/util.h"
 
 namespace rhoban_utils
@@ -148,7 +149,7 @@ public:
     if (_values.size() == 0)
     {
       _mutex.unlock();
-      return 0.0;
+      return fallback();
     }
     else if (_values.size() == 1)
     {
@@ -184,9 +185,9 @@ public:
 
     // Retrieve lower and upper bound values
     double tsLow = _values[indexLow].first;
-    double valLow = _values[indexLow].second;
+    T valLow = _values[indexLow].second;
     double tsUp = _values[indexUp].first;
-    double valUp = _values[indexUp].second;
+    T valUp = _values[indexUp].second;
 
     // Unlock
     _mutex.unlock();
@@ -201,10 +202,8 @@ public:
   /**
    * Do the actual interpolation between valLow and valHigh
    */
-  virtual T doInterpolate(T valLow, double wLow, T valUp, double wUp) const
-  {
-    return wLow * valLow + wUp * valUp;
-  }
+  virtual T doInterpolate(T valLow, double wLow, T valUp, double wUp) const = 0;
+  virtual T fallback() const = 0;
 
   /**
    * Open a log session with the given name, throws a logic_error if a
@@ -375,6 +374,9 @@ public:
   HistoryDouble(double window = 2.0);
   uint8_t type();
 
+  double doInterpolate(double valLow, double wLow, double valUp, double wUp) const;
+  double fallback() const;
+
   TimedValue readValueFromStream(std::istream& is);
   void writeValueToStream(const TimedValue& value, std::ostream& os);
 };
@@ -386,6 +388,19 @@ public:
   uint8_t type();
 
   double doInterpolate(double valLow, double wLow, double valHigh, double wHigh) const;
+};
+
+class HistoryPose : public History<Eigen::Affine3d>
+{
+public:
+  HistoryPose(double window = 2.0);
+  uint8_t type();
+
+  Eigen::Affine3d doInterpolate(Eigen::Affine3d valLow, double wLow, Eigen::Affine3d valHigh, double wHigh) const;
+  Eigen::Affine3d fallback() const;
+
+  TimedValue readValueFromStream(std::istream& is);
+  void writeValueToStream(const TimedValue& value, std::ostream& os);
 };
 
 class HistoryCollection : public std::map<std::string, HistoryBase*>
@@ -414,12 +429,12 @@ public:
     return h;
   }
 
-  HistoryDouble* getDouble(std::string name)
+  HistoryDouble* number(std::string name)
   {
     return get<HistoryDouble>(name);
   }
 
-  HistoryAngle* getAngle(std::string name)
+  HistoryAngle* angle(std::string name)
   {
     return get<HistoryAngle>(name);
   }

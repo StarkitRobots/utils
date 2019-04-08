@@ -197,42 +197,72 @@ TEST(history, binary)
   EXPECT_DOUBLE_EQ(h2.back().second, 4.);
 }
 
+TEST(history, pose_interpolate)
+{
+  HistoryPose h;
+
+  Eigen::Quaterniond rotation =
+    Eigen::AngleAxisd(2, Eigen::Vector3d::UnitX()) *
+    Eigen::AngleAxisd(1.2, Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(0.5, Eigen::Vector3d::UnitZ());
+
+  Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+  h.pushValue(0, pose);
+
+  pose.fromPositionOrientationScale(
+    Eigen::Vector3d(1, 4, 5.2),
+    Eigen::AngleAxisd(1, Eigen::Vector3d::UnitY()),
+    Eigen::Vector3d(1, 1, 1)
+  );
+  h.pushValue(2, pose);
+
+  Eigen::Affine3d interpolated = h.interpolate(1);
+  EXPECT_DOUBLE_EQ(interpolated.translation().x(), 0.5);
+  EXPECT_DOUBLE_EQ(interpolated.translation().y(), 2);
+  EXPECT_DOUBLE_EQ(interpolated.translation().z(), 2.6);
+
+  Eigen::Vector3d rpy = interpolated.rotation().eulerAngles(0, 1, 2);
+  EXPECT_DOUBLE_EQ(rpy[0], 0);
+  EXPECT_DOUBLE_EQ(rpy[1], 0.5);
+  EXPECT_DOUBLE_EQ(rpy[2], 0);
+}
+
 TEST(history, collection)
 {
   HistoryCollection collection;
-  collection.getDouble("a")->pushValue(0, 0);
-  collection.getDouble("a")->pushValue(1, 1);
-  collection.getDouble("a")->pushValue(2, 2);
+  collection.number("a")->pushValue(0, 0);
+  collection.number("a")->pushValue(1, 1);
+  collection.number("a")->pushValue(2, 2);
 
-  EXPECT_DOUBLE_EQ(collection.getDouble("a")->interpolate(0.5), 0.5);
-  ASSERT_THROW(collection.getAngle("a"), std::logic_error);
+  EXPECT_DOUBLE_EQ(collection.number("a")->interpolate(0.5), 0.5);
+  ASSERT_THROW(collection.angle("a"), std::logic_error);
 }
 
 TEST(history, collection_log)
 {
   HistoryCollection collection;
 
-  collection.getDouble("a");
-  collection.getAngle("b");
+  collection.number("a");
+  collection.angle("b");
 
   collection.startNamedLog("/tmp/test");
-  collection.getDouble("a")->pushValue(0, 0);
-  collection.getDouble("a")->pushValue(1, 1);
-  collection.getDouble("a")->pushValue(2, 2);
+  collection.number("a")->pushValue(0, 0);
+  collection.number("a")->pushValue(1, 1);
+  collection.number("a")->pushValue(2, 2);
 
-  collection.getAngle("b")->pushValue(1, 2);
-  collection.getAngle("b")->pushValue(3, 4);
-  collection.getAngle("b")->pushValue(5, 12);
+  collection.angle("b")->pushValue(1, 2);
+  collection.angle("b")->pushValue(3, 4);
+  collection.angle("b")->pushValue(5, 12);
   collection.stopNamedLog("/tmp/test");
 
   HistoryCollection collection2;
   collection2.loadReplays("/tmp/test");
 
-  EXPECT_DOUBLE_EQ(collection2.getDouble("a")->interpolate(0.5), 0.5);
-  EXPECT_DOUBLE_EQ(-2.6215653753294101, collection2.getAngle("b")->interpolate(2.5));
-  EXPECT_DOUBLE_EQ(-1.9495462246455295, collection2.getAngle("b")->interpolate(3.5));
-  EXPECT_DOUBLE_EQ(-1.4247779607693793, collection2.getAngle("b")->interpolate(4.));
-  EXPECT_DOUBLE_EQ(-0.90000969689322929, collection2.getAngle("b")->interpolate(4.5));
+  EXPECT_DOUBLE_EQ(collection2.number("a")->interpolate(0.5), 0.5);
+  EXPECT_DOUBLE_EQ(-2.6215653753294101, collection2.angle("b")->interpolate(2.5));
+  EXPECT_DOUBLE_EQ(-1.9495462246455295, collection2.angle("b")->interpolate(3.5));
+  EXPECT_DOUBLE_EQ(-1.4247779607693793, collection2.angle("b")->interpolate(4.));
+  EXPECT_DOUBLE_EQ(-0.90000969689322929, collection2.angle("b")->interpolate(4.5));
 }
 
 int main(int argc, char** argv)

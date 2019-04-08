@@ -8,6 +8,16 @@ HistoryDouble::HistoryDouble(double window) : History(window)
 {
 }
 
+double HistoryDouble::doInterpolate(double valLow, double wLow, double valUp, double wUp) const
+{
+  return wLow * valLow + wUp * valUp;
+}
+
+double HistoryDouble::fallback() const
+{
+  return 0.0;
+}
+
 uint8_t HistoryDouble::type()
 {
   return 1;
@@ -45,6 +55,52 @@ double HistoryAngle::doInterpolate(double valLow, double wLow, double valUp, dou
   auto result = Angle::weightedAverage(angleLow, wLow, angleUp, wUp);
 
   return deg2rad(result.getSignedValue());
+}
+
+HistoryPose::HistoryPose(double window) : History(window)
+{
+}
+
+uint8_t HistoryPose::type()
+{
+  return 3;
+}
+
+HistoryPose::TimedValue HistoryPose::readValueFromStream(std::istream& is)
+{
+  HistoryPose::TimedValue value;
+
+  // XXX: Todo
+
+  return value;
+}
+
+void HistoryPose::writeValueToStream(const HistoryPose::TimedValue& value, std::ostream& os)
+{
+  // XXX: Todo
+}
+
+Eigen::Affine3d HistoryPose::doInterpolate(Eigen::Affine3d valLow, double wLow, Eigen::Affine3d valHigh, double wHigh) const
+{
+  // Slerp for orientation
+  Eigen::Quaterniond qLow(valLow.rotation());
+  Eigen::Quaterniond qHigh(valHigh.rotation());
+  Eigen::Quaterniond q = qLow.slerp(wHigh, qHigh);
+
+  // Weighted average for translation
+  Eigen::Vector3d tLow(valLow.translation().x(), valLow.translation().y(), valLow.translation().z());
+  Eigen::Vector3d tHigh(valHigh.translation().x(), valHigh.translation().y(), valHigh.translation().z());
+  Eigen::Vector3d t = wLow*tLow + wHigh*tHigh;
+
+  Eigen::Affine3d result;
+  result.fromPositionOrientationScale(t, q, Eigen::Vector3d(1, 1, 1));
+
+  return result;
+}
+
+Eigen::Affine3d HistoryPose::fallback() const
+{
+  return Eigen::Affine3d::Identity();
 }
 
 HistoryCollection::HistoryCollection() : mutex()
@@ -94,6 +150,10 @@ void HistoryCollection::loadReplays(const std::string& filePath)
     else if (type == 2)
     {
       _histories[name] = new HistoryAngle();
+    }
+    else if (type == 3)
+    {
+      _histories[name] = new HistoryPose();
     }
     else
     {
