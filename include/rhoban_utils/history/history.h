@@ -19,13 +19,12 @@ class HistoryBase
 public:
   virtual void setWindowSize(double window) = 0;
   virtual size_t size() const = 0;
-  virtual void startLogging() = 0;
-  virtual void stopLogging(std::ostream& os, bool binary = false) = 0;
   virtual void startNamedLog(const std::string& sessionName) = 0;
   virtual void freezeNamedLog(const std::string& sessionName) = 0;
   virtual void closeFrozenLog(const std::string& sessionName, std::ostream& os) = 0;
-  virtual void loadReplay(std::istream& is, bool binary = false, double timeShift = 0.0) = 0;
+  virtual void loadReplay(std::istream& is, double timeShift = 0.0) = 0;
   virtual void clear() = 0;
+  virtual uint8_t type() = 0;
 };
 
 /**
@@ -43,15 +42,15 @@ public:
   /**
    * Initialization in timestamp duration
    */
-  History(double window) : _mutex(), _isLogging(false), _startLoggingTime(-1.0), _windowSize(window), _values()
+  History(double window) : _mutex(), _windowSize(window), _values()
   {
   }
 
   /**
    * This is used to abstract writing/reading data from and to a log stream
    */
-  virtual TimedValue readValueFromStream(std::istream& is, bool binary = false) = 0;
-  virtual void writeValueToStream(const TimedValue& value, std::ostream& os, bool binary = false) = 0;
+  virtual TimedValue readValueFromStream(std::istream& is) = 0;
+  virtual void writeValueToStream(const TimedValue& value, std::ostream& os) = 0;
 
   /**
    * Sets the history window size
@@ -121,16 +120,11 @@ public:
     // Insert the value
     _values.push_back(entry);
     // Shrink the queue if not in logging mode
-    while (!_isLogging && !_values.empty() && (_values.back().first - _values.front().first > _windowSize))
+    while (!_values.empty() && (_values.back().first - _values.front().first > _windowSize))
     {
       _values.pop_front();
     }
-    // Set the startLoggingTime to the first
-    // data timestampt pushed after startLogging() is called
-    if (_isLogging && _startLoggingTime < 0.0)
-    {
-      _startLoggingTime = timestamp;
-    }
+
     // Write new entries for all named sessions
     for (auto& namedLog : _activeLogs)
     {
@@ -213,46 +207,6 @@ public:
   }
 
   /**
-   * Enable to logging mode.
-   */
-  void startLogging()
-  {
-    _mutex.lock();
-    _isLogging = true;
-    _startLoggingTime = -1.0;
-    _mutex.unlock();
-  }
-
-  /**
-   * Stop logging and dump all recorded
-   * values into given output stream.
-   * If binary is true, log file is written in
-   * binary format
-   */
-  void stopLogging(std::ostream& os, bool binary = false)
-  {
-    _mutex.lock();
-    _isLogging = false;
-    if (!binary)
-    {
-      for (const auto& it : _values)
-      {
-        // Skip data in buffer before logging start
-        if (_startLoggingTime >= 0.0 && it.first >= _startLoggingTime)
-        {
-          // Write ascii data
-          writeValueToStream(it, os, false);
-        }
-      }
-    }
-    else
-    {
-      writeBinary(_values, os);
-    }
-    _mutex.unlock();
-  }
-
-  /**
    * Open a log session with the given name, throws a logic_error if a
    * session with the given name is already opened
    */
@@ -318,47 +272,31 @@ public:
    * binary format
    * Optional time shift is apply on read timestamp
    */
-  void loadReplay(std::istream& is, bool binary = false, double timeShift = 0.0)
+  void loadReplay(std::istream& is, double timeShift = 0.0)
   {
     _mutex.lock();
     // Clean the container
     _values.clear();
     // Read the number of data
     size_t size = 0;
-    if (binary)
-    {
-      is.read((char*)&size, sizeof(size_t));
-    }
+    
+    is.read((char*)&size, sizeof(size_t));
+
     // Read the input stream
     while (true)
     {
       // Extract one data point
       TimedValue newValue;
 
-      if (binary)
+      if (size == 0)
       {
-        if (size == 0)
-        {
-          _mutex.unlock();
-          return;
-        }
+        _mutex.unlock();
+        return;
+      }
 
-        newValue = readValueFromStream(is, true);
-        size--;
-      }
-      else
-      {
-        while (is.peek() == ' ' || is.peek() == '\n')
-        {
-          is.ignore();
-        }
-        if (is.peek() == '#' || is.peek() == EOF)
-        {
-          _mutex.unlock();
-          return;
-        }
-        newValue = readValueFromStream(is, false);
-      }
+      newValue = readValueFromStream(is);
+      size--;
+
       // Apply time shift
       newValue.first += timeShift;
 
@@ -401,7 +339,7 @@ private:
     for (const auto& it : values)
     {
       // Write binary data
-      writeValueToStream(it, os, true);
+      writeValueToStream(it, os);
     }
   }
 
@@ -409,18 +347,6 @@ private:
    * Mutex for concurent access
    */
   mutable std::mutex _mutex;
-
-  /**
-   * If true, the instance is in logging state
-   * and does not erase any data
-   */
-  bool _isLogging;
-
-  /**
-   * When logging, save first time
-   * to not write buffered data
-   */
-  double _startLoggingTime;
 
   /**
    * Rolling buffer size in timestamp
@@ -447,15 +373,17 @@ class HistoryDouble : public History<double>
 {
 public:
   HistoryDouble(double window = 2.0);
+  uint8_t type();
 
-  TimedValue readValueFromStream(std::istream& is, bool binary = false);
-  void writeValueToStream(const TimedValue& value, std::ostream& os, bool binary = false);
+  TimedValue readValueFromStream(std::istream& is);
+  void writeValueToStream(const TimedValue& value, std::ostream& os);
 };
 
 class HistoryAngle : public HistoryDouble
 {
 public:
   HistoryAngle(double window = 2.0);
+  uint8_t type();
 
   double doInterpolate(double valLow, double wLow, double valHigh, double wHigh) const;
 };
@@ -463,6 +391,9 @@ public:
 class HistoryCollection : public std::map<std::string, HistoryBase*>
 {
 public:
+  HistoryCollection();
+  virtual ~HistoryCollection();
+
   template <typename T>
   T* get(std::string name)
   {
@@ -504,7 +435,10 @@ public:
    */
   void loadReplays(const std::string& filePath);
 
+  void clear();
+
 protected:
+  std::mutex mutex;
   std::map<std::string, HistoryBase *> _histories;
 };
 
