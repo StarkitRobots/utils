@@ -205,6 +205,7 @@ TEST(history, collection)
   collection.getDouble("a")->pushValue(2, 2);
 
   EXPECT_DOUBLE_EQ(collection.getDouble("a")->interpolate(0.5), 0.5);
+  ASSERT_THROW(collection.getAngle("a"), std::logic_error);
 }
 
 TEST(history, collection_log)
@@ -213,7 +214,7 @@ TEST(history, collection_log)
 
   collection.getDouble("a");
   collection.getAngle("b");
-  
+
   collection.startNamedLog("/tmp/test");
   collection.getDouble("a")->pushValue(0, 0);
   collection.getDouble("a")->pushValue(1, 1);
