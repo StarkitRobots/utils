@@ -222,9 +222,15 @@ TEST(history, pose_interpolate)
   EXPECT_DOUBLE_EQ(interpolated.translation().z(), 2.6);
 
   Eigen::Vector3d rpy = interpolated.rotation().eulerAngles(0, 1, 2);
-  EXPECT_DOUBLE_EQ(rpy[0], 0);
-  EXPECT_DOUBLE_EQ(rpy[1], 0.5);
-  EXPECT_DOUBLE_EQ(rpy[2], 0);
+  EXPECT_FLOAT_EQ(rpy[0], 0);
+  EXPECT_FLOAT_EQ(rpy[1], 0.5);
+  EXPECT_FLOAT_EQ(rpy[2], 0);
+
+  interpolated = h.interpolate(0.5);
+  rpy = interpolated.rotation().eulerAngles(0, 1, 2);
+  EXPECT_FLOAT_EQ(rpy[0], 0);
+  EXPECT_FLOAT_EQ(rpy[1], 0.25);
+  EXPECT_FLOAT_EQ(rpy[2], 0);
 }
 
 TEST(history, collection)
