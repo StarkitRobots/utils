@@ -303,6 +303,22 @@ TEST(history, collection_log)
   ASSERT_THROW(collection3.loadReplays("/tmp/test"), std::runtime_error);
 }
 
+TEST(history, collection_smaller_ts)
+{
+  HistoryCollection collection;
+
+  collection.number("a");
+  collection.number("a")->pushValue(1.27, 2);
+  collection.number("a")->pushValue(2.5, 3);
+
+  collection.number("b");
+  collection.number("b")->pushValue(2.27, 2);
+  collection.number("b")->pushValue(3.5, 3);
+
+  EXPECT_FLOAT_EQ(collection.smallerTimestamp(), 1.27);
+
+}
+
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);

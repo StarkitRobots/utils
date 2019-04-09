@@ -158,13 +158,25 @@ void HistoryCollection::loadReplays(const std::string& filePath)
     _histories[name]->loadReplay(file, 0.0);
     std::cout << "Loading " << name << " with " << _histories[name]->size() << " points" << std::endl;
   }
-  // Start replay
-  // XXX ???
-  // _replayTimestamp = _histories["read:head_pitch"].front().first;
 
   // Close read file
   file.close();
   mutex.unlock();
+}
+
+double HistoryCollection::smallerTimestamp()
+{
+  bool has = false;
+  double smallerTimestamp;
+
+  for (auto &entry : _histories) {
+    if (!has || entry.second->frontTimestamp() < smallerTimestamp) {
+      has = true;
+      smallerTimestamp = entry.second->frontTimestamp();
+    }
+  }
+
+  return smallerTimestamp;
 }
 
 void HistoryCollection::startNamedLog(const std::string& filePath)
@@ -222,6 +234,11 @@ void HistoryCollection::clear()
     entry.second->clear();
   }
   mutex.unlock();
+}
+
+std::map<std::string, HistoryBase*> &HistoryCollection::entries()
+{
+  return _histories;
 }
 
 }  // namespace rhoban_utils

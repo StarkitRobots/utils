@@ -24,6 +24,8 @@ public:
   virtual void freezeNamedLog(const std::string& sessionName) = 0;
   virtual void closeFrozenLog(const std::string& sessionName, std::ostream& os) = 0;
   virtual void loadReplay(std::istream& is, double timeShift = 0.0) = 0;
+  virtual double frontTimestamp() = 0;
+  virtual double backTimestamp() = 0;
   virtual void clear() = 0;
 };
 
@@ -86,6 +88,18 @@ public:
     }
   }
 
+  virtual double frontTimestamp()
+  {
+    if (_values.size() == 0)
+    {
+      return 0;
+    }
+    else
+    {
+      return _values.front().first;
+    }
+  }
+
   const TimedValue& back() const
   {
     if (_values.size() == 0)
@@ -98,6 +112,18 @@ public:
     else
     {
       return _values.back();
+    }
+  }
+
+  virtual double backTimestamp()
+  {
+    if (_values.size() == 0)
+    {
+      return 0;
+    }
+    else
+    {
+      return _values.back().first;
     }
   }
 
@@ -459,7 +485,14 @@ public:
    */
   void loadReplays(const std::string& filePath);
 
+  /**
+   * Find the sameller timestamp
+   */
+  double smallerTimestamp();
+
   void clear();
+
+  std::map<std::string, HistoryBase*> &entries();
 
 protected:
   std::mutex mutex;
