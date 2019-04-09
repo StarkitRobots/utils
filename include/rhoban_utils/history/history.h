@@ -139,7 +139,10 @@ public:
     if (_values.size() > 0 && timestamp < _values.back().first)
     {
       _mutex.unlock();
-      throw std::logic_error("History invalid timestamp");
+
+      std::ostringstream os;
+      os << "History invalid timestamp (" << timestamp << " / " << _values.back().first << ")" << std::endl;
+      throw std::logic_error(os.str());
     }
     if (_values.size() > 0 && timestamp == _values.back().first)
     {
@@ -154,9 +157,11 @@ public:
     // Insert the value
     _values.push_back(entry);
     // Shrink the queue if not in logging mode
-    while (!_values.empty() && (_values.back().first - _values.front().first > _windowSize))
-    {
-      _values.pop_front();
+    if (_windowSize > 0.0) {
+      while (!_values.empty() && (_values.back().first - _values.front().first > _windowSize))
+      {
+        _values.pop_front();
+      }
     }
 
     // Write new entries for all named sessions

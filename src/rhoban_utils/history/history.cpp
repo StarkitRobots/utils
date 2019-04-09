@@ -167,10 +167,10 @@ void HistoryCollection::loadReplays(const std::string& filePath)
 double HistoryCollection::smallerTimestamp()
 {
   bool has = false;
-  double smallerTimestamp;
+  double smallerTimestamp = -1;
 
   for (auto &entry : _histories) {
-    if (!has || entry.second->frontTimestamp() < smallerTimestamp) {
+    if (entry.second->size() > 0 && (!has || entry.second->frontTimestamp() < smallerTimestamp)) {
       has = true;
       smallerTimestamp = entry.second->frontTimestamp();
     }

@@ -315,6 +315,8 @@ TEST(history, collection_smaller_ts)
   collection.number("b")->pushValue(2.27, 2);
   collection.number("b")->pushValue(3.5, 3);
 
+  collection.number("c");
+
   EXPECT_FLOAT_EQ(collection.smallerTimestamp(), 1.27);
 
 }
