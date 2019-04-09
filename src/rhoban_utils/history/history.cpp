@@ -18,11 +18,6 @@ double HistoryDouble::fallback() const
   return 0.0;
 }
 
-uint8_t HistoryDouble::type()
-{
-  return 1;
-}
-
 HistoryDouble::TimedValue HistoryDouble::readValueFromStream(std::istream& is)
 {
   TimedValue value;
@@ -43,11 +38,6 @@ HistoryAngle::HistoryAngle(double window) : HistoryDouble(window)
 {
 }
 
-uint8_t HistoryAngle::type()
-{
-  return 2;
-}
-
 double HistoryAngle::doInterpolate(double valLow, double wLow, double valUp, double wUp) const
 {
   Angle angleLow(rad2deg(valLow));
@@ -61,26 +51,40 @@ HistoryPose::HistoryPose(double window) : History(window)
 {
 }
 
-uint8_t HistoryPose::type()
-{
-  return 3;
-}
-
 HistoryPose::TimedValue HistoryPose::readValueFromStream(std::istream& is)
 {
   HistoryPose::TimedValue value;
 
-  // XXX: Todo
+  double values[7];
+
+  is.read((char*)&value.first, sizeof(double));
+  is.read((char*)&values, sizeof(values));
+
+  value.second.fromPositionOrientationScale(
+    Eigen::Vector3d(values[0], values[1], values[2]),
+    Eigen::Quaterniond(values[3], values[4], values[5], values[6]),
+    Eigen::Vector3d(1, 1, 1)
+  );
 
   return value;
 }
 
 void HistoryPose::writeValueToStream(const HistoryPose::TimedValue& value, std::ostream& os)
 {
-  // XXX: Todo
+  auto translation = value.second.translation();
+  Eigen::Quaterniond q(value.second.rotation());
+
+  double values[7] = {
+    translation.x(), translation.y(), translation.z(),
+    q.w(), q.x(), q.y(), q.z()
+  };
+  
+  os.write((const char*)&(value.first), sizeof(double));
+  os.write((const char*)&(values), sizeof(values));
 }
 
-Eigen::Affine3d HistoryPose::doInterpolate(Eigen::Affine3d valLow, double wLow, Eigen::Affine3d valHigh, double wHigh) const
+Eigen::Affine3d HistoryPose::doInterpolate(Eigen::Affine3d valLow, double wLow, Eigen::Affine3d valHigh,
+                                           double wHigh) const
 {
   // Slerp for orientation
   Eigen::Quaterniond qLow(valLow.rotation());
@@ -90,7 +94,7 @@ Eigen::Affine3d HistoryPose::doInterpolate(Eigen::Affine3d valLow, double wLow, 
   // Weighted average for translation
   Eigen::Vector3d tLow(valLow.translation().x(), valLow.translation().y(), valLow.translation().z());
   Eigen::Vector3d tHigh(valHigh.translation().x(), valHigh.translation().y(), valHigh.translation().z());
-  Eigen::Vector3d t = wLow*tLow + wHigh*tHigh;
+  Eigen::Vector3d t = wLow * tLow + wHigh * tHigh;
 
   Eigen::Affine3d result;
   result.fromPositionOrientationScale(t, q, Eigen::Vector3d(1, 1, 1));
@@ -109,7 +113,10 @@ HistoryCollection::HistoryCollection() : mutex()
 
 HistoryCollection::~HistoryCollection()
 {
-  clear();
+  for (auto& entry : _histories)
+  {
+    delete entry.second;
+  }
 }
 
 void HistoryCollection::loadReplays(const std::string& filePath)
@@ -135,29 +142,17 @@ void HistoryCollection::loadReplays(const std::string& filePath)
     }
     size_t length = 0;
     char buffer[256];
-    uint8_t type;
     file.read((char*)&length, sizeof(size_t));
-    file.read((char*)&type, sizeof(type));
     file.read(buffer, length);
     buffer[length] = '\0';
     std::string name(buffer);
 
     // Retrieve all data for current key
-    if (type == 1)
+    if (!_histories.count(name))
     {
-      _histories[name] = new HistoryDouble();
-    }
-    else if (type == 2)
-    {
-      _histories[name] = new HistoryAngle();
-    }
-    else if (type == 3)
-    {
-      _histories[name] = new HistoryPose();
-    }
-    else
-    {
-      throw std::runtime_error("Unable to load history: bad type");
+      std::ostringstream os;
+      os << "Unable to load history, unknown name \"" << name << "\"";
+      throw std::runtime_error(os.str());
     }
 
     _histories[name]->loadReplay(file, 0.0);
@@ -189,9 +184,12 @@ void HistoryCollection::stopNamedLog(const std::string& filePath)
   /// First, freeze all histories for the session name
   for (auto& it : _histories)
   {
-    try {
-    it.second->freezeNamedLog(filePath);
-    } catch (std::logic_error error) {
+    try
+    {
+      it.second->freezeNamedLog(filePath);
+    }
+    catch (std::logic_error error)
+    {
       mutex.unlock();
       throw error;
     }
@@ -209,8 +207,6 @@ void HistoryCollection::stopNamedLog(const std::string& filePath)
   {
     size_t length = it.first.length();
     file.write((const char*)(&length), sizeof(size_t));
-    uint8_t type = it.second->type();
-    file.write((const char*)(&type), sizeof(type));
     file.write((const char*)(it.first.c_str()), length);
     it.second->closeFrozenLog(filePath, file);
   }
@@ -223,10 +219,8 @@ void HistoryCollection::clear()
   mutex.lock();
   for (auto& entry : _histories)
   {
-    delete entry.second;
+    entry.second->clear();
   }
-
-  _histories.clear();
   mutex.unlock();
 }
 

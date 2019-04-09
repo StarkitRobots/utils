@@ -25,7 +25,6 @@ public:
   virtual void closeFrozenLog(const std::string& sessionName, std::ostream& os) = 0;
   virtual void loadReplay(std::istream& is, double timeShift = 0.0) = 0;
   virtual void clear() = 0;
-  virtual uint8_t type() = 0;
 };
 
 /**
@@ -76,8 +75,10 @@ public:
   {
     if (_values.size() == 0)
     {
-      static std::pair<double, double> zero = { 0.0, 0.0 };
-      return zero;
+      TimedValue value;
+      value.first = 0;
+      value.second = fallback();
+      return value;
     }
     else
     {
@@ -89,8 +90,10 @@ public:
   {
     if (_values.size() == 0)
     {
-      static std::pair<double, double> zero = { 0.0, 0.0 };
-      return zero;
+      TimedValue value;
+      value.first = 0;
+      value.second = fallback();
+      return value;
     }
     else
     {
@@ -117,7 +120,11 @@ public:
       _mutex.unlock();
       return;
     }
-    std::pair<double, T> entry(timestamp, value);
+
+    TimedValue entry;
+    entry.first = timestamp;
+    entry.second = value;
+
     // Insert the value
     _values.push_back(entry);
     // Shrink the queue if not in logging mode
@@ -278,7 +285,7 @@ public:
     _values.clear();
     // Read the number of data
     size_t size = 0;
-    
+
     is.read((char*)&size, sizeof(size_t));
 
     // Read the input stream
@@ -372,7 +379,6 @@ class HistoryDouble : public History<double>
 {
 public:
   HistoryDouble(double window = 2.0);
-  uint8_t type();
 
   double doInterpolate(double valLow, double wLow, double valUp, double wUp) const;
   double fallback() const;
@@ -385,7 +391,6 @@ class HistoryAngle : public HistoryDouble
 {
 public:
   HistoryAngle(double window = 2.0);
-  uint8_t type();
 
   double doInterpolate(double valLow, double wLow, double valHigh, double wHigh) const;
 };
@@ -394,7 +399,6 @@ class HistoryPose : public History<Eigen::Affine3d>
 {
 public:
   HistoryPose(double window = 2.0);
-  uint8_t type();
 
   Eigen::Affine3d doInterpolate(Eigen::Affine3d valLow, double wLow, Eigen::Affine3d valHigh, double wHigh) const;
   Eigen::Affine3d fallback() const;
@@ -439,6 +443,11 @@ public:
     return get<HistoryAngle>(name);
   }
 
+  HistoryPose* pose(std::string name)
+  {
+    return get<HistoryPose>(name);
+  }
+
   /**
    * Start and stop (save) a named log session
    */
@@ -454,7 +463,7 @@ public:
 
 protected:
   std::mutex mutex;
-  std::map<std::string, HistoryBase *> _histories;
+  std::map<std::string, HistoryBase*> _histories;
 };
 
 }  // namespace rhoban_utils

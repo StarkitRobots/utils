@@ -233,6 +233,34 @@ TEST(history, pose_interpolate)
   EXPECT_FLOAT_EQ(rpy[2], 0);
 }
 
+TEST(history, pose_binary)
+{
+  HistoryPose h1;
+
+  Eigen::Affine3d pose;
+  pose.fromPositionOrientationScale(
+    Eigen::Vector3d(1, 2, 3),
+    Eigen::AngleAxisd(0, Eigen::Vector3d::UnitX()),
+    Eigen::Vector3d(1, 1, 1)
+  );
+
+  h1.startNamedLog("test");
+  h1.pushValue(0., pose);
+  h1.pushValue(1., pose);
+  std::ostringstream log;
+  h1.freezeNamedLog("test");
+  h1.closeFrozenLog("test", log);
+
+  HistoryPose h2;
+  std::istringstream is{ log.str() };
+  h2.loadReplay(is);
+
+  Eigen::Affine3d result = h2.interpolate(0.5);
+  EXPECT_FLOAT_EQ(result.translation().x(), 1);
+  EXPECT_FLOAT_EQ(result.translation().y(), 2);
+  EXPECT_FLOAT_EQ(result.translation().z(), 3);
+}
+
 TEST(history, collection)
 {
   HistoryCollection collection;
@@ -247,7 +275,6 @@ TEST(history, collection)
 TEST(history, collection_log)
 {
   HistoryCollection collection;
-
   collection.number("a");
   collection.angle("b");
 
@@ -262,6 +289,8 @@ TEST(history, collection_log)
   collection.stopNamedLog("/tmp/test");
 
   HistoryCollection collection2;
+  collection2.number("a");
+  collection2.angle("b");
   collection2.loadReplays("/tmp/test");
 
   EXPECT_DOUBLE_EQ(collection2.number("a")->interpolate(0.5), 0.5);
@@ -269,10 +298,13 @@ TEST(history, collection_log)
   EXPECT_DOUBLE_EQ(-1.9495462246455295, collection2.angle("b")->interpolate(3.5));
   EXPECT_DOUBLE_EQ(-1.4247779607693793, collection2.angle("b")->interpolate(4.));
   EXPECT_DOUBLE_EQ(-0.90000969689322929, collection2.angle("b")->interpolate(4.5));
+
+  HistoryCollection collection3;
+  ASSERT_THROW(collection3.loadReplays("/tmp/test"), std::runtime_error);
 }
 
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
-}
+}  
