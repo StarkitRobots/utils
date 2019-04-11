@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/history/history.h>
+#include <starkit_utils/history/history.h>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // Verify that the constructor actually works and that the object has
 // sane properties.

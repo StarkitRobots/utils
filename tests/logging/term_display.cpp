@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/logging/term_display.h>
+#include <starkit_utils/logging/term_display.h>
 #include <string>
 
 using namespace std;

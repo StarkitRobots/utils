@@ -1,6 +1,6 @@
-#include "rhoban_utils/serialization/factory.h"
+#include "starkit_utils/serialization/factory.h"
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 class MyFactory : public Factory<JsonSerializable>
 {
@@ -29,8 +29,8 @@ public:
   void fromJson(const Json::Value& json_value, const std::string& dir_name) override
   {
     (void)dir_name;
-    int_value = rhoban_utils::read<int>(json_value, "int_value");
-    double_value = rhoban_utils::read<double>(json_value, "double_value");
+    int_value = starkit_utils::read<int>(json_value, "int_value");
+    double_value = starkit_utils::read<double>(json_value, "double_value");
   }
 
   Json::Value toJson() const override
@@ -60,7 +60,7 @@ public:
   void fromJson(const Json::Value& json_value, const std::string& dir_name) override
   {
     (void)dir_name;
-    s_value = rhoban_utils::read<std::string>(json_value, "s_value");
+    s_value = starkit_utils::read<std::string>(json_value, "s_value");
   }
 
   Json::Value toJson() const override

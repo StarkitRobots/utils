@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
-#include "rhoban_utils/timing/time_stamp.h"
-#include "rhoban_utils/timing/benchmark.h"
+#include "starkit_utils/timing/time_stamp.h"
+#include "starkit_utils/timing/benchmark.h"
 #include <chrono>
 #include <iostream>
 #include <fstream>
 #include <cstdio>
 using namespace std::chrono;
-namespace rhoban_utils
+namespace starkit_utils
 {
 const std::string name = "BenchmarkName";
 Benchmark* benchmarkF;
@@ -301,7 +301,7 @@ TEST(BenchmarkTest, testPrintCsv3)
   EXPECT_EQ(words.at(13), "child2");
 }
 
-}  // namespace rhoban_utils
+}  // namespace starkit_utils
 
 int main(int argc, char** argv)
 {

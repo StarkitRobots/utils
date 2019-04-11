@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <gtest/gtest.h>
-#include <rhoban_utils/threading/multi_core.h>
+#include <starkit_utils/threading/multi_core.h>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // Map intervals to their length.
 std::vector<int> distances(const MultiCore::Intervals& its)

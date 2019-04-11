@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/serialization/json_serializable.h>
+#include <starkit_utils/serialization/json_serializable.h>
 #include <json/json.h>
-#include "rhoban_utils/io_tools.h"
-#include "rhoban_utils/util.h"
+#include "starkit_utils/io_tools.h"
+#include "starkit_utils/util.h"
 using namespace std;
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 const string testFilePath = "ressources/file.json";
 const string fileContentShould = "{\"key1\" : \"valeur1\",\"key2\" : \"valeur2\"}";
@@ -27,7 +27,7 @@ TEST(file2Json, DISABLED_TestSuccess)
   ASSERT_EQ(getAbsoluteTestFilePath(), "HGDECHD");
   try
   {
-    result = rhoban_utils::file2Json(absoluteTestFilePath);
+    result = starkit_utils::file2Json(absoluteTestFilePath);
   }
   catch (string const& exception)
   {

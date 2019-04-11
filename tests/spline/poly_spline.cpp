@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/spline/poly_spline.h>
+#include <starkit_utils/spline/poly_spline.h>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 TEST(splinePolySpline, instantiate)
 {

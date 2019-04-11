@@ -1,9 +1,9 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include <rhoban_utils/control/bang_bang.h>
+#include <starkit_utils/control/bang_bang.h>
 #include <Eigen/Core>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // Since max_val and max_acc agre puclic,
 // we test these values to

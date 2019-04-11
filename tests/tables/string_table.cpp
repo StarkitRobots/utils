@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "rhoban_utils/tables/string_table.h"
+#include "starkit_utils/tables/string_table.h"
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 TEST(StringTable, emptyBuilder)
 {

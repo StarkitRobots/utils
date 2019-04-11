@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
-#include "rhoban_utils/timing/chrono.h"
+#include "starkit_utils/timing/chrono.h"
 #include <sys/timeb.h>
 #include <time.h>
 #include <string>
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // test time_sec and time_usec of gettimeofday value
 TEST(chrono, gettimeofday)

@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/control/pid.h>
+#include <starkit_utils/control/pid.h>
 
 using namespace std;
 
 TEST(controlPid, computeNegatifTotal)
 {
-  rhoban_utils::PID* pid1 = new rhoban_utils::PID(1.0, 2.0, 3.0);
+  starkit_utils::PID* pid1 = new starkit_utils::PID(1.0, 2.0, 3.0);
   float result1 = pid1->compute(-50.0, 2.0, 3.0);  // I-val = 0.0
 
   /* current_setpoint=-50.0;
@@ -26,7 +26,7 @@ TEST(controlPid, computeNegatifTotal)
 
 TEST(controlPid, computepositifTotal1)
 {
-  rhoban_utils::PID* pid2 = new rhoban_utils::PID(1.0, 2.0, 3.0);
+  starkit_utils::PID* pid2 = new starkit_utils::PID(1.0, 2.0, 3.0);
   float result2 = pid2->compute(32.0, 2.0, 3.0);
 
   /* I-Val = 0.0
@@ -47,7 +47,7 @@ TEST(controlPid, computepositifTotal1)
 
 TEST(controlPid, computePositifTotal2)
 {
-  rhoban_utils::PID* pid3 = new rhoban_utils::PID(1.0, 2.0, 3.0);
+  starkit_utils::PID* pid3 = new starkit_utils::PID(1.0, 2.0, 3.0);
   float result3 = pid3->compute(-11.0, -2.0, -3.0);
 
   /* I-Val = 0.0

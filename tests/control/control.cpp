@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/control/control.h>
+#include <starkit_utils/control/control.h>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // update change the value of Control depending
 // on the unput value.

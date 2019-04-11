@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/spline/function.h>
+#include <starkit_utils/spline/function.h>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // Verify that the constructor actually works.
 TEST(splineFunction, instantiate)

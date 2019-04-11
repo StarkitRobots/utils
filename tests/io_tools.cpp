@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/io_tools.h>
-#include <rhoban_utils/util.h>
+#include <starkit_utils/io_tools.h>
+#include <starkit_utils/util.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -17,9 +17,9 @@ TEST(file2string, testSuccess)
   remove(absoluteFilePath);
 
   std::string testContent = "Hello world";
-  rhoban_utils::file_put_contents(absoluteFilePath, testContent);
+  starkit_utils::file_put_contents(absoluteFilePath, testContent);
 
-  std::string readContent = rhoban_utils::file2string(absoluteFilePathStr);
+  std::string readContent = starkit_utils::file2string(absoluteFilePathStr);
 
   EXPECT_EQ(readContent, testContent);
 }
@@ -32,7 +32,7 @@ TEST(file2string, testFail)
 
   try
   {
-    rhoban_utils::file2string(absoluteFilePathStr);
+    starkit_utils::file2string(absoluteFilePathStr);
   }
   catch (std::runtime_error error)
   {
@@ -50,8 +50,8 @@ TEST(write_read_int, testSuccessPos)
   std::stringstream stream;
   int writtenInteger = 5;
   int readInteger;
-  EXPECT_EQ(sizeof(int), rhoban_utils::writeInt(stream, writtenInteger));
-  EXPECT_EQ(sizeof(int), rhoban_utils::readInt(stream, readInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::writeInt(stream, writtenInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::readInt(stream, readInteger));
   EXPECT_EQ(readInteger, writtenInteger);
 }
 
@@ -60,8 +60,8 @@ TEST(write_read_int, testSuccessNeg)
   std::stringstream stream;
   int writtenInteger = -5;
   int readInteger;
-  EXPECT_EQ(sizeof(int), rhoban_utils::writeInt(stream, writtenInteger));
-  EXPECT_EQ(sizeof(int), rhoban_utils::readInt(stream, readInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::writeInt(stream, writtenInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::readInt(stream, readInteger));
   EXPECT_EQ(readInteger, writtenInteger);
 }
 
@@ -74,8 +74,8 @@ TEST(write_read_double, testSuccessPos)
   std::stringstream stream;
   double writtenDouble = M_PI;
   double readDouble;
-  EXPECT_EQ(sizeof(double), rhoban_utils::writeDouble(stream, writtenDouble));
-  EXPECT_EQ(sizeof(double), rhoban_utils::readDouble(stream, readDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::writeDouble(stream, writtenDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::readDouble(stream, readDouble));
   EXPECT_EQ(readDouble, writtenDouble);
 }
 
@@ -84,8 +84,8 @@ TEST(write_read_double, testSuccessNeg)
   std::stringstream stream;
   double writtenDouble = -1 * M_PI;
   double readDouble;
-  EXPECT_EQ(sizeof(double), rhoban_utils::writeDouble(stream, writtenDouble));
-  EXPECT_EQ(sizeof(double), rhoban_utils::readDouble(stream, readDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::writeDouble(stream, writtenDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::readDouble(stream, readDouble));
   EXPECT_EQ(readDouble, writtenDouble);
 }
 
@@ -102,8 +102,8 @@ TEST(write_read_int_array, testSuccess)
 
   try
   {
-    EXPECT_EQ(sizeof(int) * arraySize, rhoban_utils::writeIntArray(stream, writtenIntegers, arraySize));
-    EXPECT_EQ(sizeof(int) * arraySize, rhoban_utils::readIntArray(stream, readIntegers, arraySize));
+    EXPECT_EQ(sizeof(int) * arraySize, starkit_utils::writeIntArray(stream, writtenIntegers, arraySize));
+    EXPECT_EQ(sizeof(int) * arraySize, starkit_utils::readIntArray(stream, readIntegers, arraySize));
   }
   catch (...)
   {  // error if we pass here
@@ -129,8 +129,8 @@ TEST(write_read_double_array, testSuccess)
 
   try
   {
-    EXPECT_EQ(sizeof(double) * arraySize, rhoban_utils::writeDoubleArray(stream, writtenDoubles, arraySize));
-    EXPECT_EQ(sizeof(double) * arraySize, rhoban_utils::readDoubleArray(stream, readDoubles, arraySize));
+    EXPECT_EQ(sizeof(double) * arraySize, starkit_utils::writeDoubleArray(stream, writtenDoubles, arraySize));
+    EXPECT_EQ(sizeof(double) * arraySize, starkit_utils::readDoubleArray(stream, readDoubles, arraySize));
   }
   catch (...)
   {  // error if we pass here
@@ -152,8 +152,8 @@ TEST(write_read, testSuccessIntPos)
   std::stringstream stream;
   int writtenInteger = 0;
   int readInteger;
-  EXPECT_EQ(sizeof(int), rhoban_utils::write<int>(stream, writtenInteger));
-  EXPECT_EQ(sizeof(int), rhoban_utils::read<int>(stream, &readInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::write<int>(stream, writtenInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::read<int>(stream, &readInteger));
   EXPECT_EQ(readInteger, writtenInteger);
 }
 
@@ -162,8 +162,8 @@ TEST(write_read, testSuccessIntNeg)
   std::stringstream stream;
   int writtenInteger = -89520;
   int readInteger;
-  EXPECT_EQ(sizeof(int), rhoban_utils::write<int>(stream, writtenInteger));
-  EXPECT_EQ(sizeof(int), rhoban_utils::read<int>(stream, &readInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::write<int>(stream, writtenInteger));
+  EXPECT_EQ(sizeof(int), starkit_utils::read<int>(stream, &readInteger));
   EXPECT_EQ(readInteger, writtenInteger);
 }
 
@@ -172,8 +172,8 @@ TEST(write_read, testSuccessDoublePos)
   std::stringstream stream;
   double writtenDouble = M_PI;
   double readDouble;
-  EXPECT_EQ(sizeof(double), rhoban_utils::write<double>(stream, writtenDouble));
-  EXPECT_EQ(sizeof(double), rhoban_utils::read<double>(stream, &readDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::write<double>(stream, writtenDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::read<double>(stream, &readDouble));
   EXPECT_EQ(readDouble, writtenDouble);
 }
 
@@ -182,8 +182,8 @@ TEST(write_read, testSuccessDoubleNeg)
   std::stringstream stream;
   double writtenDouble = -1 * M_PI;
   double readDouble;
-  EXPECT_EQ(sizeof(double), rhoban_utils::write<double>(stream, writtenDouble));
-  EXPECT_EQ(sizeof(double), rhoban_utils::read<double>(stream, &readDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::write<double>(stream, writtenDouble));
+  EXPECT_EQ(sizeof(double), starkit_utils::read<double>(stream, &readDouble));
   EXPECT_EQ(readDouble, writtenDouble);
 }
 
@@ -200,8 +200,8 @@ TEST(write_read_array, testSuccessInt)
 
   try
   {
-    EXPECT_EQ(sizeof(int) * arraySize, rhoban_utils::writeArray<int>(stream, arraySize, writtenIntegers));
-    EXPECT_EQ(sizeof(int) * arraySize, rhoban_utils::readArray<int>(stream, arraySize, readIntegers));
+    EXPECT_EQ(sizeof(int) * arraySize, starkit_utils::writeArray<int>(stream, arraySize, writtenIntegers));
+    EXPECT_EQ(sizeof(int) * arraySize, starkit_utils::readArray<int>(stream, arraySize, readIntegers));
   }
   catch (...)
   {  // error if we pass here
@@ -227,8 +227,8 @@ TEST(write_read_array, testSuccessDouble)
 
   try
   {
-    EXPECT_EQ(sizeof(double) * arraySize, rhoban_utils::writeArray<double>(stream, arraySize, writtenDoubles));
-    EXPECT_EQ(sizeof(double) * arraySize, rhoban_utils::readArray<double>(stream, arraySize, readDoubles));
+    EXPECT_EQ(sizeof(double) * arraySize, starkit_utils::writeArray<double>(stream, arraySize, writtenDoubles));
+    EXPECT_EQ(sizeof(double) * arraySize, starkit_utils::readArray<double>(stream, arraySize, readDoubles));
   }
   catch (...)
   {  // error if we pass here

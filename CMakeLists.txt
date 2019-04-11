@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(rhoban_utils)
+project(starkit_utils)
 
 find_package(catkin REQUIRED COMPONENTS
   jsoncpp
@@ -10,13 +10,13 @@ find_package(Threads REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rhoban_utils
+  LIBRARIES starkit_utils
   CATKIN_DEPENDS jsoncpp eigen
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-option(RHOBAN_UTILS_BUILD_EXAMPLES "Building examples" OFF)
+option(STARKIT_UTILS_BUILD_EXAMPLES "Building examples" OFF)
 
 #Enable C++17
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra")
@@ -26,18 +26,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 #List Sources sub source directories
 set(SOURCES_DIRECTORIES
-  src/rhoban_utils
-  src/rhoban_utils/control
-  src/rhoban_utils/history
-  src/rhoban_utils/logging
-  src/rhoban_utils/nominal
-  src/rhoban_utils/serialization
-  src/rhoban_utils/sockets
-  src/rhoban_utils/spline
-  src/rhoban_utils/tables
-  src/rhoban_utils/threading
-  src/rhoban_utils/timing
-  src/rhoban_utils/stats
+  src/starkit_utils
+  src/starkit_utils/control
+  src/starkit_utils/history
+  src/starkit_utils/logging
+  src/starkit_utils/nominal
+  src/starkit_utils/serialization
+  src/starkit_utils/sockets
+  src/starkit_utils/spline
+  src/starkit_utils/tables
+  src/starkit_utils/threading
+  src/starkit_utils/timing
+  src/starkit_utils/stats
 )
 
 #Include Sources sub sources
@@ -52,14 +52,14 @@ foreach (DIRECTORY ${SOURCES_DIRECTORIES})
 endforeach (DIRECTORY)
 
 
-add_library (rhoban_utils ${ALL_SOURCES})
-target_link_libraries(rhoban_utils ${catkin_LIBRARIES} Threads::Threads)
+add_library (starkit_utils ${ALL_SOURCES})
+target_link_libraries(starkit_utils ${catkin_LIBRARIES} Threads::Threads)
 
-if (RHOBAN_UTILS_BUILD_EXAMPLES)
+if (STARKIT_UTILS_BUILD_EXAMPLES)
   add_executable(json_serialization_example examples/json_serialization.cpp)
-  target_link_libraries(json_serialization_example rhoban_utils ${catkin_LIBRARIES} Threads::Threads)
+  target_link_libraries(json_serialization_example starkit_utils ${catkin_LIBRARIES} Threads::Threads)
   add_executable(json_factory_example examples/json_factory.cpp)
-  target_link_libraries(json_factory_example rhoban_utils ${catkin_LIBRARIES} Threads::Threads)
+  target_link_libraries(json_factory_example starkit_utils ${catkin_LIBRARIES} Threads::Threads)
 endif()
 
 enable_testing()
@@ -98,7 +98,7 @@ if (CATKIN_ENABLE_TESTING)
   foreach(test ${TESTS})
     string(REPLACE "/" "_" id ${test})
     catkin_add_gtest(${id} tests/${test}.cpp)
-    target_link_libraries(${id} rhoban_utils)
+    target_link_libraries(${id} starkit_utils)
   endforeach(test)
 endif()
 

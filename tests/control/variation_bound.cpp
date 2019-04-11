@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/control/variation_bound.h>
-using namespace rhoban_utils;
+#include <starkit_utils/control/variation_bound.h>
+using namespace starkit_utils;
 using namespace std;
 VariationBound bound;
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 using namespace std;
 
 TEST(controlVariationBound, updateDoubleSuccess1)

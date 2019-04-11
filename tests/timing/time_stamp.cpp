@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
-#include "rhoban_utils/timing/time_stamp.h"
+#include "starkit_utils/timing/time_stamp.h"
 #include <sys/timeb.h>
 #include <time.h>
 #include <ctime>
 #include <ratio>
 #include <chrono>
 #include <string>
-using namespace rhoban_utils;
+using namespace starkit_utils;
 using namespace std::chrono;
 
 // test getTimeMS

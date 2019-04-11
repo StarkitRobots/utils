@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/logging/logger.h>
+#include <starkit_utils/logging/logger.h>
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 LoggerLevel level = LoggerDebug;
 Logger logger("logger", level);

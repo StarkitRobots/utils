@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
 #include <cmath>
-#include "rhoban_utils/timing/elapse_tick.h"
+#include "starkit_utils/timing/elapse_tick.h"
 #include "gtest/gtest_prod.h"
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // redefine virtual tick to test elapse_tick class
 

@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "rhoban_utils/timing/sleep.h"
+#include "starkit_utils/timing/sleep.h"
 
-using namespace rhoban_utils;
+using namespace starkit_utils;
 
 // test ms_sleep method
 TEST(sleep, test_msSleep)

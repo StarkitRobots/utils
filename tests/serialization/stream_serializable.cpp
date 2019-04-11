@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
-#include <rhoban_utils/serialization/stream_serializable.h>
-#include "rhoban_utils/io_tools.h"
+#include <starkit_utils/serialization/stream_serializable.h>
+#include "starkit_utils/io_tools.h"
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 
 using std::ios;
-using namespace rhoban_utils;
+using namespace starkit_utils;
 using namespace std;
 const std::string file_name = "saves.txt";
 const std::string file_name_load = "load.txt";
@@ -31,7 +31,7 @@ public:
   int writeInternal(std::ostream& out) const
   {
     int bytes_written = 0;
-    bytes_written += rhoban_utils::write<int>(out, data);
+    bytes_written += starkit_utils::write<int>(out, data);
     return bytes_written;
   }
   int read(std::istream& in)
