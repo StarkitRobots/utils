@@ -14,8 +14,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>jsoncpp</build_depend> <!-- starkitdeps/jsoncpp -->
-  <build_depend>eigen</build_depend> <!-- starkitdeps/eigen -->
+  <build_depend>jsoncpp</build_depend> <!-- StarkitRobots/jsoncpp -->
+  <build_depend>eigen</build_depend> <!-- StarkitRobots/eigen -->
   <run_depend>jsoncpp</run_depend>
   <run_depend>eigen</run_depend>
 
