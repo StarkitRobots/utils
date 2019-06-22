@@ -62,43 +62,7 @@ if (STARKIT_UTILS_BUILD_EXAMPLES)
   target_link_libraries(json_factory_example starkit_utils ${catkin_LIBRARIES} Threads::Threads)
 endif()
 
-enable_testing()
- 
-set(TESTS
-  angle
-  control/bang_bang
-  control/control
-  control/pid
-  control/variation_bound
-  history/history
-  logging/csv
-  logging/logger
-  logging/term_display
-  # nominal/nominal not tested -> considered experimental
-  serialization/stream_serializable
-  serialization/json_serializable
-  spline/function
-  spline/poly_spline
-  tables/double_table
-  tables/string_table
-  # threading/condition not tested -> adapter for condition API
-  threading/multi_core
-  # threading/mutex not tested -> adapter for mutex API
-  # threading/thread not tested -> adapter for thread API
-  timing/chrono
-#  timing/benchmark # TO be fixed: private variables
-  timing/time_stamp
-  timing/elapse_tick
-  timing/sleep
-  util
-)
 
-if (CATKIN_ENABLE_TESTING)
-  # create an executable for each test
-  foreach(test ${TESTS})
-    string(REPLACE "/" "_" id ${test})
-    catkin_add_gtest(${id} tests/${test}.cpp)
-    target_link_libraries(${id} starkit_utils)
-  endforeach(test)
-endif()
+ 
+
 
